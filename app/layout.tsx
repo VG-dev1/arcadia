@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   title: "Arcadia",
   description: "Advanced Time Tracking System",
   verification: {
-    google: "uTOvvZgIxWCZPNdoDdipI"
+    google: "uTOvvZgIxWCZPNdoDdipI_vEzWJTg1cSJzXlel6UkJk"
   }
 };
 
