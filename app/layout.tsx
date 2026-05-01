@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cuprum } from "next/font/google";
+import Script from "next/script";
 import { AuthProvider } from "@/lib/AuthContext";
 import { UserProfile } from "@/lib/UserProfile";
 import "./globals.css";
@@ -41,6 +42,20 @@ export default function RootLayout({
       style={{ backgroundColor: "#000" }}
     >
       <body className="min-h-full flex flex-col bg-black text-white">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-3QPJ8PFKXG"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-3QPJ8PFKXG');
+          `}
+        </Script>
+
         <AuthProvider>
           {/* Top bar - global branding with user profile */}
           <nav
