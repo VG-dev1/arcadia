@@ -24,6 +24,9 @@ const cuprum = Cuprum({
 export const metadata: Metadata = {
   title: "Arcadia",
   description: "Advanced Time Tracking System",
+  verification: {
+    google: "uTOvvZgIxWCZPNdoDdipI"
+  }
 };
 
 export default function RootLayout({
