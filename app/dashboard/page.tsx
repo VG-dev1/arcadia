@@ -477,7 +477,9 @@ const ClockAppContent: React.FC = () => {
           ) : (
             <>
               <div style={{ maxHeight: "260px", overflowY: "auto", textAlign: "left" }}>
-                {tasks.map((task) => {
+                {[...tasks]
+                  .sort((a, b) => a.start - b.start)
+                  .map((task) => {
                   const duration = task.end - task.start;
                   return (
                     <div
