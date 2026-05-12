@@ -101,6 +101,31 @@ export const UserProfile: React.FC = () => {
           }}
         >
           <button
+            onClick={() => { setShowDropdown(false); router.push('/settings'); }}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: 'none',
+              border: 'none',
+              borderBottom: '1px solid #1a1a1a',
+              color: '#fff',
+              textAlign: 'left',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-cuprum), sans-serif',
+              fontSize: '13px',
+              letterSpacing: '0.5px',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              (e.target as HTMLElement).style.backgroundColor = '#1a1a1a';
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLElement).style.backgroundColor = 'transparent';
+            }}
+          >
+            SETTINGS
+          </button>
+          <button
             onClick={handleLogout}
             style={{
               width: '100%',

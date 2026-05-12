@@ -231,23 +231,21 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </button>
         ) : <span />}
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <button
-            onClick={() => {
-              if (initial?.id) {
-                router.push(`/focus?id=${initial.id}&date=${currentKey}`);
-              }
-            }}
-            style={{
-              background: "purple", border: "none",
-              color: "white", padding: "10px 22px",
-              borderRadius: "6px", cursor: "pointer",
-              fontSize: "13px", fontWeight: "600",
-              fontFamily: "var(--font-cuprum), sans-serif",
-              letterSpacing: "0.5px",
-            }}
-          >
-            Focus
-          </button>
+          {initial?.id && (
+            <button
+              onClick={() => router.push(`/focus?id=${initial.id}&date=${currentKey}`)}
+              style={{
+                background: "#818cf8", border: "none",
+                color: "white", padding: "10px 22px",
+                borderRadius: "6px", cursor: "pointer",
+                fontSize: "13px", fontWeight: "600",
+                fontFamily: "var(--font-cuprum), sans-serif",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Focus
+            </button>
+          )}
           <button
             onClick={onClose}
             style={{

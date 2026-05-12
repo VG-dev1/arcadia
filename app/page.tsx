@@ -84,7 +84,7 @@ const LandingPage = () => {
             onClick={() => router.push('/dashboard')}
             style={{
               backgroundColor: "white", color: "black", border: "none",
-              padding: "18px 48px", borderRadius: "8px", fontSize: "16px",
+              padding: "18px 48px", borderRadius: "6px", fontSize: "16px",
               fontWeight: "600", cursor: "pointer"
             }}
           >
@@ -168,7 +168,7 @@ const LandingPage = () => {
             }
             .scroll-container {
             display: flex;
-            width: calc(350px * 10); /* Double the cards for seamless loop */
+            width: calc(350px * 10);
             animation: scroll 30s linear infinite;
             }
             .scroll-container:hover {
@@ -246,7 +246,7 @@ const LandingPage = () => {
         <div style={{ 
           backgroundColor: "#111", 
           padding: "80px 40px", 
-          borderRadius: "24px", 
+          borderRadius: "12px", 
           border: "1px solid #222",
           maxWidth: "1000px",
           margin: "0 auto"
@@ -257,7 +257,7 @@ const LandingPage = () => {
             onClick={() => router.push('/dashboard')}
             style={{
               backgroundColor: "white", color: "black", border: "none",
-              padding: "18px 48px", borderRadius: "8px", fontSize: "16px",
+              padding: "18px 48px", borderRadius: "6px", fontSize: "16px",
               fontWeight: "600", cursor: "pointer"
             }}
           >

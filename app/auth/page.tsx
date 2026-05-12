@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { auth, db } from '@/lib/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
@@ -47,7 +47,7 @@ export default function AuthPage() {
         });
       }
       
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       let errorMessage = err.message;
 
@@ -66,6 +66,35 @@ export default function AuthPage() {
       setError(errorMessage);
     }
     
+    setLoading(false);
+  };
+
+  const handleGoogleAuth = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+
+      const { getDoc, doc: fsDoc } = await import('firebase/firestore');
+      const userDocRef = fsDoc(db, 'users', user.uid);
+      const existing = await getDoc(userDocRef);
+      if (!existing.exists()) {
+        await setDoc(userDocRef, {
+          email: user.email,
+          username: user.displayName || user.email?.split('@')[0] || 'User',
+          tasks: {},
+          createdAt: new Date(),
+        });
+      }
+
+      router.push('/dashboard');
+    } catch (err: any) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError(err.message);
+      }
+    }
     setLoading(false);
   };
 
@@ -167,6 +196,39 @@ export default function AuthPage() {
           }}
         >
           {loading ? 'LOADING...' : (isLogin ? 'LOGIN' : 'REGISTER')}
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: '#2a2a2a' }} />
+          <span style={{ fontSize: '11px', letterSpacing: '1.5px', color: '#fff' }}>OR</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: '#2a2a2a' }} />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleAuth}
+          disabled={loading}
+          style={{
+            background: 'none',
+            border: '1px solid #fff',
+            color: '#fff',
+            padding: '12px',
+            borderRadius: '6px',
+            cursor: loading ? 'wait' : 'pointer',
+            fontFamily: 'var(--font-cuprum), sans-serif',
+            fontSize: '13px',
+            letterSpacing: '1px',
+            opacity: loading ? 0.6 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            textTransform: 'uppercase',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.3-.2-2.7-.5-4z"/>
+          </svg>
+          Continue with Google
         </button>
 
         <p 
