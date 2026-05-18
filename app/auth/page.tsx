@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { auth, db } from '@/lib/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +11,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -98,12 +99,91 @@ export default function AuthPage() {
     setLoading(false);
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!email) { setError('Please enter your email.'); return; }
+    setLoading(true);
+    try {
+      const actionCodeSettings = {
+        url: `${window.location.origin}/auth/reset-password`,
+        handleCodeInApp: true
+      };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      alert('Password reset email sent! Check your inbox.');
+      setIsForgotPassword(false);
+    } catch (err: any) {
+      if (err.code === 'auth/user-not-found') {
+        setError('No account found with that email.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Invalid email address.');
+      } else {
+        setError(err.message);
+      }
+    }
+    setLoading(false);
+  };
+
   return (
     <div style={{ 
       backgroundColor: '#000', height: '100vh', display: 'flex', 
       alignItems: 'center', justifyContent: 'center', color: 'white',
       fontFamily: 'var(--font-cuprum), sans-serif' 
     }}>
+      {isForgotPassword ? (
+        <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '300px' }}>
+          <h1 style={{ letterSpacing: '4px', textAlign: 'center', margin: '0 0 20px 0', fontSize: '20px' }}>RESET PASSWORD</h1>
+
+          {error && (
+            <div style={{
+              background: '#3a1a1a', border: '1px solid #ef4444',
+              color: '#fca5a5', padding: '12px', borderRadius: '6px',
+              fontSize: '12px', textAlign: 'center'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <input
+            type="email"
+            placeholder="EMAIL"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+            style={{
+              background: '#111', border: '1px solid #fff', color: '#fff',
+              padding: '12px', borderRadius: '6px',
+              fontFamily: 'var(--font-cuprum), sans-serif',
+              opacity: loading ? 0.5 : 1, cursor: loading ? 'wait' : 'text'
+            }}
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              background: '#fff', color: '#000', padding: '12px',
+              fontWeight: 'bold', cursor: loading ? 'wait' : 'pointer',
+              borderRadius: '6px', border: 'none',
+              fontFamily: 'var(--font-cuprum), sans-serif',
+              fontSize: '13px', letterSpacing: '1px',
+              opacity: loading ? 0.6 : 1, textTransform: 'uppercase'
+            }}
+          >
+            {loading ? 'SENDING...' : 'SEND RESET LINK'}
+          </button>
+
+          <p
+            onClick={() => { setIsForgotPassword(false); setError(''); }}
+            style={{
+              fontSize: '12px', textAlign: 'center', cursor: 'pointer',
+              opacity: 0.6, margin: 0, userSelect: 'none'
+            }}
+          >
+            BACK TO LOGIN
+          </p>
+        </form>
+      ) : (
       <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '300px' }}>
         <h1 style={{ letterSpacing: '4px', textAlign: 'center', margin: '0 0 20px 0' }}>LOG IN TO ARCADIA</h1>
         
@@ -248,7 +328,18 @@ export default function AuthPage() {
         >
           {isLogin ? "DON'T HAVE AN ACCOUNT? REGISTER" : "HAVE AN ACCOUNT? LOGIN"}
         </p>
+
+        <p
+          onClick={() => { setIsForgotPassword(true); setError(''); }}
+          style={{
+            fontSize: '12px', textAlign: 'center', cursor: 'pointer',
+            opacity: 0.6, margin: 0, userSelect: 'none'
+          }}
+        >
+          FORGOT YOUR PASSWORD? RESET IT
+        </p>
       </form>
+      )}
     </div>
-  );
-}
+  )
+};
