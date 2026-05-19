@@ -12,12 +12,17 @@ import {
   deleteDoc,
 } from 'firebase/firestore';
 
-interface Task {
+export interface Task {
   id: string;
   name: string;
   start: number;
   end: number;
   color: string;
+  repeat?: {
+    count: number;
+    unit: 'days' | 'weeks' | 'months' | 'years';
+  };
+  repeatOrigin?: string;
 }
 
 interface UserProfile {
