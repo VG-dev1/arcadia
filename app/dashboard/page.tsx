@@ -5,12 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/AuthContext';
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
 
+type RepeatUnit = 'days' | 'weeks' | 'months' | 'years';
+
+interface RepeatConfig {
+  count: number;
+  unit: RepeatUnit;
+}
+
 interface Task {
   id: string;
   name: string;
   start: number;
   end: number;
   color: string;
+  repeat?: RepeatConfig;
+  repeatOrigin?: string;
 }
 
 const PRESET_COLORS = [
@@ -50,6 +59,34 @@ const getDateLabel = (d: Date, today: Date): string => {
   if (dk === dateKey(yesterday)) return "Yesterday";
   if (dk === dateKey(tomorrow)) return "Tomorrow";
   return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" }).toUpperCase();
+};
+
+const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
+  if (!task.repeat || !task.repeatOrigin) return false;
+  const origin = new Date(task.repeatOrigin + 'T00:00:00');
+  const target = new Date(targetKey + 'T00:00:00');
+  if (target < origin) return false;
+  const { count, unit } = task.repeat;
+  if (unit === 'days') {
+    const diff = Math.round((target.getTime() - origin.getTime()) / 86400000);
+    return diff % count === 0;
+  }
+  if (unit === 'weeks') {
+    const diff = Math.round((target.getTime() - origin.getTime()) / 86400000);
+    return diff % (count * 7) === 0;
+  }
+  if (unit === 'months') {
+    const yearDiff = target.getFullYear() - origin.getFullYear();
+    const monthDiff = yearDiff * 12 + (target.getMonth() - origin.getMonth());
+    return monthDiff % count === 0 && target.getDate() === origin.getDate();
+  }
+  if (unit === 'years') {
+    const yearDiff = target.getFullYear() - origin.getFullYear();
+    return yearDiff % count === 0 &&
+      target.getMonth() === origin.getMonth() &&
+      target.getDate() === origin.getDate();
+  }
+  return false;
 };
 
 const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ onClose, children }) => (
@@ -111,7 +148,7 @@ interface TaskFormProps {
   onDelete?: () => void;
   onClose: () => void;
   title: string;
-  currentKey: string; 
+  currentKey: string;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ 
@@ -130,6 +167,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [useCustom, setUseCustom] = useState(
     initial?.color ? !PRESET_COLORS.includes(initial.color) : false
   );
+  const [repeatEnabled, setRepeatEnabled] = useState<boolean>(!!initial?.repeat);
+  const [repeatCount, setRepeatCount] = useState<number>(initial?.repeat?.count ?? 1);
+  const [repeatUnit, setRepeatUnit] = useState<RepeatUnit>(initial?.repeat?.unit ?? 'days');
   const colorPickerRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
@@ -137,7 +177,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
     const start = timeToMinutes(startTime);
     const end = timeToMinutes(endTime);
     if (end <= start) return;
-    onSave({ name: name.trim(), start, end, color });
+    const repeat: RepeatConfig | undefined = repeatEnabled
+      ? { count: Math.max(1, repeatCount), unit: repeatUnit }
+      : undefined;
+    onSave({ name: name.trim(), start, end, color, repeat, repeatOrigin: initial?.repeatOrigin ?? currentKey });
     onClose();
   };
 
@@ -215,6 +258,69 @@ const TaskForm: React.FC<TaskFormProps> = ({
         </div>
       </div>
 
+      <div style={{ marginBottom: "28px" }}>
+        {/* Repeat toggle */}
+        <div
+          onClick={() => setRepeatEnabled((v) => !v)}
+          style={{
+            display: "flex", alignItems: "center", gap: "10px",
+            cursor: "pointer", marginBottom: repeatEnabled ? "14px" : "0",
+            userSelect: "none",
+          }}
+        >
+          <div style={{
+            width: "18px", height: "18px", borderRadius: "4px",
+            border: "1px solid #fff", backgroundColor: repeatEnabled ? "#fff" : "transparent",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            {repeatEnabled && (
+              <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                <path d="M1 4L4 7.5L10 1" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <span style={{ fontSize: "11px", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+            Repeat
+          </span>
+        </div>
+
+        {repeatEnabled && (
+          <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: "10px" }}>
+            <input
+              type="number"
+              min={1}
+              value={repeatCount}
+              onChange={(e) => setRepeatCount(Math.max(1, parseInt(e.target.value) || 1))}
+              style={{
+                backgroundColor: "#1a1a1a", border: "1px solid #fff",
+                borderRadius: "6px", color: "white",
+                padding: "10px 12px", fontSize: "15px",
+                fontFamily: "var(--font-cuprum), sans-serif",
+                outline: "none", width: "100%", boxSizing: "border-box",
+              }}
+            />
+            <select
+              value={repeatUnit}
+              onChange={(e) => setRepeatUnit(e.target.value as RepeatUnit)}
+              style={{
+                backgroundColor: "#1a1a1a", border: "1px solid #fff",
+                borderRadius: "6px", color: "white",
+                padding: "10px 12px", fontSize: "15px",
+                fontFamily: "var(--font-cuprum), sans-serif",
+                outline: "none", width: "100%", boxSizing: "border-box",
+                cursor: "pointer", appearance: "none",
+              }}
+            >
+              <option value="days">Days</option>
+              <option value="weeks">Weeks</option>
+              <option value="months">Months</option>
+              <option value="years">Years</option>
+            </select>
+          </div>
+        )}
+      </div>
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
         {onDelete ? (
           <button
@@ -284,15 +390,9 @@ const ClockAppContent: React.FC = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [clockSize, setClockSize] = useState(520);
-
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
   
   const { allTasks, addTask, updateTask, deleteTask } = useAuth();
   const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const updateSize = () => {
@@ -316,7 +416,19 @@ const ClockAppContent: React.FC = () => {
   const viewedDate = new Date(now);
   viewedDate.setDate(now.getDate() + dayOffset);
   const currentKey = dateKey(viewedDate);
-  const tasks: Task[] = allTasks[currentKey] ?? [];
+
+  const ownTasks: Task[] = allTasks[currentKey] ?? [];
+
+  const repeatingTasks: Task[] = Object.entries(allTasks)
+    .filter(([key]) => key !== currentKey)
+    .flatMap(([, dayTasks]) =>
+      dayTasks.filter(
+        (t) => t.repeat && doesTaskRepeatOnDate(t, currentKey)
+      )
+    );
+
+  const ownIds = new Set(ownTasks.map((t) => t.id));
+  const tasks: Task[] = [...ownTasks, ...repeatingTasks.filter((t) => !ownIds.has(t.id))];
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -326,7 +438,8 @@ const ClockAppContent: React.FC = () => {
   const handleAddTask = async (t: Omit<Task, "id">) => {
     setIsSaving(true);
     try {
-      await addTask(currentKey, { ...t, id: crypto.randomUUID() });
+      const uuid = typeof window !== 'undefined' ? window.crypto.randomUUID() : Math.random().toString(36).substring(2);
+      await addTask(currentKey, { ...t, id: uuid, repeatOrigin: t.repeatOrigin ?? currentKey });
     } catch (error) {
       alert('Error adding task: ' + (error as any).message);
     }
@@ -336,7 +449,9 @@ const ClockAppContent: React.FC = () => {
   const handleUpdateTask = async (id: string, t: Omit<Task, "id">) => {
     setIsSaving(true);
     try {
-      await updateTask(currentKey, id, t);
+      const task = tasks.find((tk) => tk.id === id);
+      const targetKey = task?.repeatOrigin ?? currentKey;
+      await updateTask(targetKey, id, { ...t, repeatOrigin: task?.repeatOrigin ?? currentKey });
     } catch (error) {
       alert('Error updating task: ' + (error as any).message);
     }
@@ -344,10 +459,12 @@ const ClockAppContent: React.FC = () => {
   };
 
   const handleDeleteTask = async (id: string) => {
-    if (confirm("Are you sure to delete the task?")) {
+    if (confirm("Are you sure you want to delete this task?")) {
       setIsSaving(true);
       try {
-        await deleteTask(currentKey, id);
+        const task = tasks.find((tk) => tk.id === id);
+        const targetKey = task?.repeatOrigin ?? currentKey;
+        await deleteTask(targetKey, id);
         setEditingTask(null);
       } catch (error) {
         alert('Error deleting task: ' + (error as any).message);
@@ -478,7 +595,6 @@ const ClockAppContent: React.FC = () => {
                 {[...tasks]
                   .sort((a, b) => a.start - b.start)
                   .map((task) => {
-                  const duration = task.end - task.start;
                   return (
                     <div
                       key={task.id}
@@ -500,7 +616,7 @@ const ClockAppContent: React.FC = () => {
                       }} />
                       <div>
                         <p style={{ color: "white", margin: "0 0 2px 0", fontSize: "14px", fontWeight: "600" }}>
-                          {task.name}
+                          {task.name}{task.repeat ? <span style={{ fontSize: "10px", letterSpacing: "1px", opacity: 0.5, marginLeft: "8px", fontWeight: "400" }}>↻ REPEATING</span> : null}
                         </p>
                         <p style={{ margin: 0, fontSize: "12px", color: "#fff", letterSpacing: "0.5px" }}>
                           {currentMinutes >= task.start && currentMinutes < task.end && isToday ? (

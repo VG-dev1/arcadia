@@ -24,3 +24,11 @@ body {
   color: var(--foreground);
   font-family: var(--font-cuprum), sans-serif;
 }
+
+button {
+  transition: opacity 160ms ease;
+}
+
+button:not(:disabled):hover {
+  opacity: 0.82 !important;
+}
