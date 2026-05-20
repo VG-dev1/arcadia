@@ -11,6 +11,7 @@ export function FocusPageContent() {
     const { allTasks } = useAuth();
     const taskId = searchParams.get('id');
     const dateParam = searchParams.get('date');
+    const originDate = searchParams.get('originDate');
     
     const [now, setNow] = useState(new Date());
     const [task, setTask] = useState<any>(null);
@@ -22,13 +23,14 @@ export function FocusPageContent() {
 
     useEffect(() => {
         if (!isMounted) return;
+        const targetLookupDate = originDate || dateParam;
         
-        if (taskId && dateParam && allTasks[dateParam]) {
-            const dayTasks = allTasks[dateParam] || [];
+        if (taskId && targetLookupDate && allTasks[targetLookupDate]) {
+            const dayTasks = allTasks[targetLookupDate] || [];
             const foundTask = dayTasks.find((t: any) => t.id === taskId);
             setTask(foundTask);
         }
-    }, [taskId, dateParam, isMounted, allTasks]);
+    }, [taskId, dateParam, originDate, isMounted, allTasks]);
 
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);

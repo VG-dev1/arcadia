@@ -259,7 +259,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
       </div>
 
       <div style={{ marginBottom: "28px" }}>
-        {/* Repeat toggle */}
         <div
           onClick={() => setRepeatEnabled((v) => !v)}
           style={{
@@ -339,7 +338,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           {initial?.id && (
             <button
-              onClick={() => router.push(`/focus?id=${initial.id}&date=${currentKey}`)}
+              onClick={() => {
+                const originParam = initial.repeatOrigin ? `&originDate=${initial.repeatOrigin}` : '';
+                router.push(`/focus?id=${initial.id}&date=${currentKey}${originParam}`);
+              }}
               style={{
                 background: "#818cf8", border: "none",
                 color: "white", padding: "10px 22px",
