@@ -50,7 +50,7 @@ const LandingPage = () => {
           position: "absolute",
           top: "50%",
           left: "50%",
-          transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+          transform: "translate(-50%, -50%)",
           width: "600px",
           height: "600px",
           borderRadius: "50%",
@@ -60,13 +60,17 @@ const LandingPage = () => {
         }}>
           <div style={{
             position: "absolute",
-            top: "-5px",
+            top: "50%",
             left: "50%",
-            width: "120px",
-            height: "10px",
-            backgroundColor: "#818cf8",
-            borderRadius: "10px",
-            boxShadow: "0 0 20px #818cf8"
+            transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+            width: "600px",
+            height: "600px",
+            borderRadius: "50%",
+            border: "6px solid transparent",
+            borderTop: "6px solid #818cf8",
+            pointerEvents: "none",
+            zIndex: 0,
+            filter: "drop-shadow(0 0 12px #818cf8)"
           }} />
         </div>
 

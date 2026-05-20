@@ -119,8 +119,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const dateDocRef = doc(db, 'users', user.uid, 'tasks', date);
       await setDoc(dateDocRef, { initialized: true }, { merge: true });
 
+      const cleanData = Object.fromEntries(
+        Object.entries(taskData).filter(([_, value]) => value !== undefined)
+      );
+
       const taskDocRef = doc(db, 'users', user.uid, 'tasks', date, 'items', taskId);
-      await setDoc(taskDocRef, { ...taskData, id: taskId });
+      await setDoc(taskDocRef, { ...cleanData, id: taskId });
     } catch (error) {
       console.error('Error saving task:', error);
       throw error;
