@@ -38,6 +38,7 @@ export interface Category {
 export interface UserProfile {
   uid: string;
   email: string | null;
+  username?: string;
   createdAt?: any;
 }
 
@@ -91,7 +92,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (userDoc.exists()) {
         setUserProfile({ uid, ...userDoc.data() } as UserProfile);
       } else {
-        const initialProfile = { uid, email: auth.currentUser?.email || null, createdAt: new Date() };
+        const initialProfile: UserProfile = {
+          uid, 
+          email: auth.currentUser?.email || null, 
+          username: auth.currentUser?.displayName || auth.currentUser?.email?.split('@')[0] || 'User',
+          createdAt: new Date() 
+        };
         await setDoc(userDocRef, initialProfile);
         setUserProfile(initialProfile);
       }

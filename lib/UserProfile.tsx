@@ -36,7 +36,9 @@ export const UserProfile: React.FC = () => {
     return null;
   }
 
-  const initials = userProfile.username
+  const displayName = userProfile.username || userProfile.email || 'User';
+
+  const initials = displayName
     .split(' ')
     .map(word => word[0])
     .join('')
