@@ -55,7 +55,7 @@ export const UserProfile: React.FC = () => {
           border: 'none',
           color: 'white',
           cursor: 'pointer',
-          padding: '0',
+          padding: '10',
           fontFamily: 'var(--font-cuprum), sans-serif',
         }}
       >

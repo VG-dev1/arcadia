@@ -18,6 +18,7 @@ interface Task {
   start: number;
   end: number;
   color: string;
+  categoryId?: string;
   repeat?: RepeatConfig;
   repeatOrigin?: string;
 }
@@ -142,6 +143,327 @@ const ModalInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props
   />
 );
 
+interface ManageCategoriesModalProps {
+  onClose: () => void;
+  onSelectCategory?: (id: string) => void;
+}
+
+const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, onSelectCategory }) => {
+  const { categories, addCategory, updateCategory, deleteCategory, allTasks } = useAuth();
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [addingError, setAddingError] = useState('');
+
+  const [editingCat, setEditingCat] = useState<{ id: string; name: string } | null>(null);
+  const [editName, setEditName] = useState('');
+
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const taskCountForCategory = (catId: string): number => {
+    return Object.values(allTasks).flat().filter((t) => t.categoryId === catId).length;
+  };
+
+  const handleAdd = async () => {
+    if (!newCategoryName.trim()) return;
+    try {
+      await addCategory(newCategoryName.trim());
+      setNewCategoryName('');
+      setShowAddModal(false);
+    } catch {
+      setAddingError('Could not save category.');
+    }
+  };
+
+  const handleEdit = async () => {
+    if (!editingCat || !editName.trim()) return;
+    try {
+      await updateCategory(editingCat.id, editName.trim());
+      setEditingCat(null);
+    } catch {
+      alert('Could not update category.');
+    }
+  };
+
+  const handleDelete = async (catId: string, catName: string) => {
+    setOpenMenuId(null);
+    if (!confirm(`Delete "${catName}"? All tasks in this category will be moved to General.`)) return;
+    try {
+      await deleteCategory(catId);
+    } catch {
+      alert('Could not delete category.');
+    }
+  };
+
+  const btnBase: React.CSSProperties = {
+    background: "none", border: "1px solid #fff", color: "#fff",
+    padding: "8px 16px", borderRadius: "6px", cursor: "pointer",
+    fontSize: "13px", fontFamily: "var(--font-cuprum), sans-serif", letterSpacing: "0.5px",
+  };
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.75)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 110,
+        }}
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            backgroundColor: "#111", border: "1px solid #fff", borderRadius: "12px",
+            padding: "36px", width: "560px", maxWidth: "95vw", height: "520px", maxHeight: "85vh",
+            display: "flex", flexDirection: "column",
+            color: "white", fontFamily: "var(--font-cuprum), sans-serif",
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
+            <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "600", letterSpacing: "0.5px" }}>
+              Manage Categories
+            </h2>
+            <button
+              onClick={() => setShowAddModal(true)}
+              style={{
+                background: "none", border: "1px solid #fff", color: "#fff",
+                padding: "8px 16px", borderRadius: "6px", cursor: "pointer",
+                fontSize: "12px", fontFamily: "var(--font-cuprum), sans-serif",
+                letterSpacing: "1px", textTransform: "uppercase",
+              }}
+            >
+              + Add Category
+            </button>
+          </div>
+
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            {categories.length === 0 ? (
+              <p style={{ color: "#fff", fontSize: "14px" }}>No categories yet.</p>
+            ) : (
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+                gap: "12px",
+              }}>
+                {categories.map((cat) => {
+                  const count = taskCountForCategory(cat.id);
+                  const isMenuOpen = openMenuId === cat.id;
+                  return (
+                    <div
+                      key={cat.id}
+                      style={{
+                        position: "relative",
+                        border: "1px solid #fff",
+                        borderRadius: "8px",
+                        padding: "16px",
+                        cursor: "default",
+                      }}
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(isMenuOpen ? null : cat.id);
+                        }}
+                        style={{
+                          position: "absolute", top: "10px", right: "10px",
+                          background: "none", border: "none", color: "#fff",
+                          cursor: "pointer", padding: "2px 6px", fontSize: "16px",
+                          lineHeight: 1, letterSpacing: "1px",
+                        }}
+                        title="Options"
+                      >
+                        ···
+                      </button>
+
+                      {isMenuOpen && (
+                        <div
+                          ref={menuRef}
+                          style={{
+                            position: "absolute", top: "34px", right: "10px",
+                            backgroundColor: "#1a1a1a", border: "1px solid #fff",
+                            borderRadius: "6px", zIndex: 10, overflow: "hidden",
+                            minWidth: "110px",
+                          }}
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingCat({ id: cat.id, name: cat.name });
+                              setEditName(cat.name);
+                              setOpenMenuId(null);
+                            }}
+                            style={{
+                              display: "block", width: "100%", textAlign: "left",
+                              background: "none", border: "none", color: "#fff",
+                              padding: "10px 14px", cursor: "pointer", fontSize: "13px",
+                              fontFamily: "var(--font-cuprum), sans-serif", letterSpacing: "0.5px",
+                              borderBottom: "1px solid #333",
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a2a2a")}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            Edit
+                          </button>
+                          {cat.id !== 'general' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(cat.id, cat.name);
+                            }}
+                            style={{
+                              display: "block", width: "100%", textAlign: "left",
+                              background: "none", border: "none", color: "#ef4444",
+                              padding: "10px 14px", cursor: "pointer", fontSize: "13px",
+                              fontFamily: "var(--font-cuprum), sans-serif", letterSpacing: "0.5px",
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a2a2a")}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            Delete
+                          </button>
+                          )}
+                        </div>
+                      )}
+
+                      <p style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: "600", paddingRight: "24px", wordBreak: "break-word" }}>
+                        {cat.name}
+                      </p>
+                      <p style={{ margin: 0, fontSize: "11px", color: "#fff", letterSpacing: "1px", opacity: 0.5 }}>
+                        {count} {count === 1 ? "TASK" : "TASKS"}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "28px" }}>
+            <button
+              onClick={onClose}
+              style={{
+                background: "white", border: "none", color: "black",
+                padding: "10px 28px", borderRadius: "6px", cursor: "pointer",
+                fontSize: "13px", fontWeight: "600",
+                fontFamily: "var(--font-cuprum), sans-serif", letterSpacing: "1px",
+                textTransform: "uppercase",
+              }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {showAddModal && (
+        <div
+          onClick={() => setShowAddModal(false)}
+          style={{
+            position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 120,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#111", border: "1px solid #fff", borderRadius: "12px",
+              padding: "32px", width: "360px",
+              fontFamily: "var(--font-cuprum), sans-serif", color: "#fff",
+            }}
+          >
+            <h3 style={{ margin: "0 0 24px 0", fontSize: "16px", fontWeight: "600" }}>New Category</h3>
+            <div style={{ marginBottom: "24px" }}>
+              <ModalLabel>Category name</ModalLabel>
+              <ModalInput
+                autoFocus
+                placeholder="e.g. Work, Study, Health"
+                value={newCategoryName}
+                onChange={(e) => { setNewCategoryName(e.target.value); setAddingError(''); }}
+                onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+              />
+              {addingError && <p style={{ color: "#ef4444", fontSize: "12px", margin: "6px 0 0 0" }}>{addingError}</p>}
+            </div>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <button onClick={() => { setShowAddModal(false); setNewCategoryName(''); }} style={btnBase}>Cancel</button>
+              <button
+                onClick={handleAdd}
+                disabled={!newCategoryName.trim()}
+                style={{
+                  background: "white", border: "none", color: "black",
+                  padding: "8px 20px", borderRadius: "6px", cursor: newCategoryName.trim() ? "pointer" : "not-allowed",
+                  fontSize: "13px", fontWeight: "600",
+                  fontFamily: "var(--font-cuprum), sans-serif",
+                  opacity: newCategoryName.trim() ? 1 : 0.5,
+                }}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editingCat && (
+        <div
+          onClick={() => setEditingCat(null)}
+          style={{
+            position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 120,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#111", border: "1px solid #fff", borderRadius: "12px",
+              padding: "32px", width: "360px",
+              fontFamily: "var(--font-cuprum), sans-serif", color: "#fff",
+            }}
+          >
+            <h3 style={{ margin: "0 0 24px 0", fontSize: "16px", fontWeight: "600" }}>Edit Category</h3>
+            <div style={{ marginBottom: "24px" }}>
+              <ModalLabel>Category name</ModalLabel>
+              <ModalInput
+                autoFocus
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleEdit()}
+              />
+            </div>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <button onClick={() => setEditingCat(null)} style={btnBase}>Cancel</button>
+              <button
+                onClick={handleEdit}
+                disabled={!editName.trim()}
+                style={{
+                  background: "white", border: "none", color: "black",
+                  padding: "8px 20px", borderRadius: "6px", cursor: editName.trim() ? "pointer" : "not-allowed",
+                  fontSize: "13px", fontWeight: "600",
+                  fontFamily: "var(--font-cuprum), sans-serif",
+                  opacity: editName.trim() ? 1 : 0.5,
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 interface TaskFormProps {
   initial?: Partial<Task>;
   onSave: (task: Omit<Task, "id">) => void;
@@ -160,6 +482,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
   currentKey 
 }) => {
   const router = useRouter();
+  const { categories, addCategory, updateCategory, deleteCategory } = useAuth();
+  
   const [name, setName] = useState(initial?.name ?? "");
   const [startTime, setStartTime] = useState(minutesToTime(initial?.start ?? 480));
   const [endTime, setEndTime] = useState(minutesToTime(initial?.end ?? 540));
@@ -170,6 +494,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [repeatEnabled, setRepeatEnabled] = useState<boolean>(!!initial?.repeat);
   const [repeatCount, setRepeatCount] = useState<number>(initial?.repeat?.count ?? 1);
   const [repeatUnit, setRepeatUnit] = useState<RepeatUnit>(initial?.repeat?.unit ?? 'days');
+
+  const [selectedCategoryId, setSelectedCategoryId] = useState(initial?.categoryId || 'general');
+  const [showManageCategories, setShowManageCategories] = useState(false);
+  
   const colorPickerRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
@@ -180,7 +508,16 @@ const TaskForm: React.FC<TaskFormProps> = ({
     const repeat: RepeatConfig | undefined = repeatEnabled
       ? { count: Math.max(1, repeatCount), unit: repeatUnit }
       : undefined;
-    onSave({ name: name.trim(), start, end, color, repeat, repeatOrigin: initial?.repeatOrigin ?? currentKey });
+      
+    onSave({ 
+      name: name.trim(), 
+      start, 
+      end, 
+      color, 
+      categoryId: selectedCategoryId,
+      repeat, 
+      repeatOrigin: initial?.repeatOrigin ?? currentKey 
+    });
     onClose();
   };
 
@@ -198,6 +535,41 @@ const TaskForm: React.FC<TaskFormProps> = ({
           placeholder="e.g. Morning run 🏃"
           autoFocus
         />
+      </div>
+
+      <div style={{ marginBottom: "20px" }}>
+        <ModalLabel>Category</ModalLabel>
+        <select
+          value={selectedCategoryId}
+          onChange={(e) => {
+            if (e.target.value === "NEW_CATEGORY_TRIGGER") {
+              setShowManageCategories(true);
+            } else {
+              setSelectedCategoryId(e.target.value);
+            }
+          }}
+          style={{
+            width: "100%",
+            backgroundColor: "#1a1a1a",
+            border: "1px solid #fff",
+            borderRadius: "6px",
+            color: "white",
+            padding: "10px 12px",
+            fontSize: "15px",
+            fontFamily: "var(--font-cuprum), sans-serif",
+            outline: "none",
+            cursor: "pointer",
+          }}
+        >
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+          <option value="NEW_CATEGORY_TRIGGER" style={{ color: "#818cf8", fontWeight: "600" }}>
+            Manage categories...
+          </option>
+        </select>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
@@ -367,19 +739,38 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </button>
           <button
             onClick={handleSave}
+            disabled={!name || !selectedCategoryId || !startTime || !endTime}
             style={{
-              background: "white", border: "none",
-              color: "black", padding: "10px 22px",
-              borderRadius: "6px", cursor: "pointer",
-              fontSize: "13px", fontWeight: "600",
+              background: "white",
+              border: "none",
+              color: "black",
+              padding: "10px 22px",
+              borderRadius: "6px",
+              cursor:
+                !name || !selectedCategoryId || !startTime || !endTime
+                  ? "not-allowed"
+                  : "pointer",
+              fontSize: "13px",
+              fontWeight: "600",
               fontFamily: "var(--font-cuprum), sans-serif",
               letterSpacing: "0.5px",
+              opacity:
+                !name || !selectedCategoryId || !startTime || !endTime
+                  ? 0.5
+                  : 1,
             }}
           >
             Save
           </button>
         </div>
       </div>
+
+      {showManageCategories && (
+        <ManageCategoriesModal
+          onClose={() => setShowManageCategories(false)}
+          onSelectCategory={(id) => { setSelectedCategoryId(id); setShowManageCategories(false); }}
+        />
+      )}
     </Modal>
   );
 };
@@ -392,9 +783,15 @@ const ClockAppContent: React.FC = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [clockSize, setClockSize] = useState(520);
+
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const { allTasks, addTask, updateTask, deleteTask } = useAuth();
   const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const updateSize = () => {
@@ -418,7 +815,6 @@ const ClockAppContent: React.FC = () => {
   const viewedDate = new Date(now);
   viewedDate.setDate(now.getDate() + dayOffset);
   const currentKey = dateKey(viewedDate);
-
   const ownTasks: Task[] = allTasks[currentKey] ?? [];
 
   const repeatingTasks: Task[] = Object.entries(allTasks)
@@ -440,8 +836,7 @@ const ClockAppContent: React.FC = () => {
   const handleAddTask = async (t: Omit<Task, "id">) => {
     setIsSaving(true);
     try {
-      const uuid = typeof window !== 'undefined' ? window.crypto.randomUUID() : Math.random().toString(36).substring(2);
-      await addTask(currentKey, { ...t, id: uuid, repeatOrigin: t.repeatOrigin ?? currentKey });
+      await addTask(currentKey, { ...t, id: crypto.randomUUID(), repeatOrigin: t.repeatOrigin ?? currentKey });
     } catch (error) {
       alert('Error adding task: ' + (error as any).message);
     }
@@ -597,6 +992,7 @@ const ClockAppContent: React.FC = () => {
                 {[...tasks]
                   .sort((a, b) => a.start - b.start)
                   .map((task) => {
+                  const duration = task.end - task.start;
                   return (
                     <div
                       key={task.id}
@@ -618,7 +1014,7 @@ const ClockAppContent: React.FC = () => {
                       }} />
                       <div>
                         <p style={{ color: "white", margin: "0 0 2px 0", fontSize: "14px", fontWeight: "600" }}>
-                          {task.name}{task.repeat ? <span style={{ fontSize: "10px", letterSpacing: "1px", opacity: 0.5, marginLeft: "8px", fontWeight: "400" }}>↻ REPEATING</span> : null}
+                          {task.name} • {task.categoryId} {task.repeat ? <span style={{ fontSize: "10px", letterSpacing: "1px", opacity: 0.5, marginLeft: "8px", fontWeight: "400" }}>↻ REPEATING</span> : null}
                         </p>
                         <p style={{ margin: 0, fontSize: "12px", color: "#fff", letterSpacing: "0.5px" }}>
                           {currentMinutes >= task.start && currentMinutes < task.end && isToday ? (
@@ -798,7 +1194,9 @@ interface DateSelectorProps {
 }
 
 const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDate }) => {
-  const [dateInput, setDateInput] = useState("");
+  const [dateInput, setDateInput] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
   const handleConfirm = () => {
     if (dateInput) {

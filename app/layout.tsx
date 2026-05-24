@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cuprum } from "next/font/google";
 import Script from "next/script";
 import { AuthProvider } from "@/lib/AuthContext";
-import { UserProfile } from "@/lib/UserProfile";
+import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -57,33 +57,9 @@ export default function RootLayout({
         </Script>
 
         <AuthProvider>
-          {/* Top bar - global branding with user profile */}
-          <nav
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "24px 48px",
-              borderBottom: "1px solid #1a1a1a",
-              backgroundColor: "#000",
-              zIndex: 50,
-            }}
-          >
-            <span
-              style={{
-                fontSize: "22px",
-                letterSpacing: "3px",
-                color: "#fff",
-                textTransform: "uppercase",
-                fontFamily: "var(--font-cuprum), sans-serif",
-              }}
-            >
-              Arcadia
-            </span>
-            <UserProfile />
-          </nav>
+          {/* Top bar component decoupled safely */}
+          <Navbar />
 
-          {/* Page Content */}
           <main className="flex-1 flex flex-col">
             {children}
           </main>
