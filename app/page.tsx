@@ -7,11 +7,11 @@ import { useAuth } from '@/lib/AuthContext';
 const LandingPage = () => {
   const router = useRouter();
   const [rotation, setRotation] = useState(0);
-
   const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => {
-      setIsMounted(true);
-    }, []);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -23,10 +23,10 @@ const LandingPage = () => {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-        if (!loading && user) {
-            router.push('/dashboard');
-        }
-    }, [user, loading, router]);
+    if (!loading && user) {
+        router.push('/dashboard');
+    }
+  }, [user, loading, router]);
 
   return (
     <div style={{
@@ -35,7 +35,7 @@ const LandingPage = () => {
       fontFamily: "var(--font-cuprum), sans-serif",
       overflowX: "hidden"
     }}>
-      {/* HERO SECTION */}
+      
       <section style={{
         minHeight: "90vh",
         display: "flex",
@@ -76,49 +76,58 @@ const LandingPage = () => {
 
         <div style={{ zIndex: 1 }}>
           <p style={{ letterSpacing: "4px", color: "#a3a3a3", fontSize: "14px", textTransform: "uppercase", marginBottom: "20px" }}>
-            Visual Time Management
+            Visual time management software
           </p>
           <h1 style={{ fontSize: "clamp(48px, 8vw, 90px)", fontWeight: "600", lineHeight: "1", margin: "0 0 30px 0", letterSpacing: "-2px" }}>
-            Own Your <span style={{ color: "#818cf8" }}>Day</span>,<br />Arc by Arc.
+            Stop losing track of hours.<br />See your day on a <span style={{ color: "#818cf8" }}>24-hour circle.</span>
           </h1>
           <p style={{ fontSize: "18px", color: "#a3a3a3", maxWidth: "600px", margin: "0 auto 40px auto", lineHeight: "1.6" }}>
-            Ditch the list. Visualize your schedule on an intuitive clock face that helps you see exactly where your time goes.
+            Arcadia maps your to-do items onto a clock face. If you struggle with time blindness or get overwhelmed by text-heavy to-do lists, this shows you exactly how much time you have left between tasks.
           </p>
-          <button 
-            onClick={() => router.push('/dashboard')}
-            style={{
-              backgroundColor: "white", color: "black", border: "none",
-              padding: "18px 48px", borderRadius: "6px", fontSize: "16px",
-              fontWeight: "600", cursor: "pointer"
-            }}
-          >
-            GET STARTED
-          </button>
+          
+          <div data-nosnippet>
+            <button 
+              onClick={() => router.push('/dashboard')}
+              style={{
+                backgroundColor: "white", color: "black", border: "none",
+                padding: "18px 48px", borderRadius: "6px", fontSize: "16px",
+                fontWeight: "600", cursor: "pointer"
+              }}
+            >
+              TRY ARCADIA FREE
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* FEATURES SECTION */}
       <section style={{ padding: "100px 20px", maxWidth: "1200px", margin: "0 auto" }}>
-        <h2 style={{ textAlign: "center", fontSize: "32px", marginBottom: "60px" }}>Core Features</h2>
+        <h2 style={{ textAlign: "center", fontSize: "32px", marginBottom: "60px" }}>
+          Built differently than a standard to-do list
+        </h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "40px" }}>
             {[
                 { 
-                title: "Visual Intuition", 
-                desc: "View your day as a continuous 24-hour cycle. Arcs represent tasks, giving you an immediate sense of available space.",
+                title: "The Clock Face Layout", 
+                desc: "Your events are drawn as solid blocks of color directly on a 24-hour wheel. You can spot open gaps in your schedule immediately without reading time stamps.",
                 img: "/clock.png" 
                 },
                 { 
-                title: "Day Overview", 
-                desc: "Take a look at the summary of your daily tasks and dive into analysis.",
-                img: "/daily-summary.png" 
+                  title: "Simple Time Tracking Logs",
+                  desc: "Arcadia logs your completed events automatically. Look back at your charts from last week to see where your time actually went, then adjust your upcoming schedule based on real numbers.",
+                  img: "/daily-summary.png" 
                 },
                 { 
-                title: "Focus Tracking", 
-                desc: "A dedicated mode that highlights your current objective on the clock, keeping you grounded in the present moment.",
+                title: "One-Task View", 
+                desc: "Hide the rest of your day when you need to work. This view keeps only your current task visible on the dial, acting as a constant visual anchor so you don't wander off.",
                 img: "/focus-mode.png" 
+                },
+                {
+                  title: "Valuable Insights",
+                  desc: "Arcadia tracks your time usage and gives you personalized insights about your habits. See which hours you are most productive, how long you spend on different types of tasks, and where you can find hidden pockets of free time.",
+                  img: "/insights.png"
                 }
             ].map((f, i) => (
-                <div key={i} style={{ 
+                <article key={i} style={{ 
                 padding: "40px", 
                 backgroundColor: "#111", 
                 borderRadius: "16px", 
@@ -142,13 +151,12 @@ const LandingPage = () => {
                 <div style={{ width: "40px", height: "4px", backgroundColor: "#818cf8", marginBottom: "20px" }} />
                 <h3 style={{ fontSize: "22px", marginBottom: "15px" }}>{f.title}</h3>
                 <p style={{ color: "#a3a3a3", lineHeight: "1.6" }}>{f.desc}</p>
-                </div>
+                </article>
             ))}
         </div>
       </section>
       
-      {/* REVIEWS SECTION */}
-      <section style={{ 
+      <section data-nosnippet style={{ 
         padding: "80px 0", 
         backgroundColor: "#000", 
         overflow: "hidden", 
@@ -162,7 +170,7 @@ const LandingPage = () => {
             marginBottom: "40px",
             color: "#fff"
         }}>
-            Trusted by high-achievers
+            Feedback from current users
         </h2>
 
         <style>{`
@@ -182,17 +190,17 @@ const LandingPage = () => {
 
         <div className="scroll-container">
             {[
-            { name: "Alex R.", review: "The 24-hour visual is a game changer for my ADHD. I finally see 'time' instead of just numbers." },
-            { name: "Sarah M.", review: "Cleanest UI I've ever used. The focus mode helps me stay in the flow for hours." },
-            { name: "Jordan K.", review: "Love how it syncs across my devices." },
-            { name: "Elena V.", review: "The arc visualization is so intuitive. It's the first time a calendar actually made sense." },
-            { name: "Marcus T.", review: "I've tried every planner app out there. This is the only one I've stuck with for over a month." }
+            { name: "Alex R.", review: "I have terrible ADHD and numbers on a digital calendar don't mean anything to my brain. Seeing a physical block of color actually works." },
+            { name: "Sarah M.", review: "Simple layout. The single-task focus screen stops me from jumping between tabs when I get distracted." },
+            { name: "Jordan K.", review: "It syncs across all my devices seamlessly." },
+            { name: "Elena V.", review: "The round design makes sense to me. Standard line items always made me feel like I was falling behind." },
+            { name: "Marcus T.", review: "I usually open planning apps, use them for three days, and forget they exist. I've used this one every morning for a month." }
             ].concat([
-            { name: "Alex R.", review: "The 24-hour visual is a game changer for my ADHD. I finally see 'time' instead of just numbers." },
-            { name: "Sarah M.", review: "Cleanest UI I've ever used. The focus mode helps me stay in the flow for hours." },
-            { name: "Jordan K.", review: "Vercel + Firebase makes this so snappy. Love how it syncs across my devices." },
-            { name: "Elena V.", review: "The arc visualization is so intuitive. It's the first time a calendar actually made sense." },
-            { name: "Marcus T.", review: "I've tried every planner app out there. This is the only one I've stuck with for over a month." }
+            { name: "Alex R.", review: "I have terrible ADHD and numbers on a digital calendar don't mean anything to my brain. Seeing a physical block of color actually works." },
+            { name: "Sarah M.", review: "Simple layout. The single-task focus screen stops me from jumping between tabs when I get distracted." },
+            { name: "Jordan K.", review: "It syncs across all my devices seamlessly." },
+            { name: "Elena V.", review: "The round design makes sense to me. Standard line items always made me feel like I was falling behind." },
+            { name: "Marcus T.", review: "I usually open planning apps, use them for three days, and forget they exist. I've used this one every morning for a month." }
             ]).map((r, i) => (
             <div key={i} style={{
                 width: "320px",
@@ -217,35 +225,33 @@ const LandingPage = () => {
         </div>
     </section>
 
-      {/* FAQ SECTION */}
       <section style={{ padding: "100px 20px", maxWidth: "900px", margin: "0 auto" }}>
-        <h2 style={{ fontSize: "32px", marginBottom: "40px", textAlign: "left" }}>FAQ</h2>
+        <h2 style={{ fontSize: "32px", marginBottom: "40px", textAlign: "left" }}>Questions & Answers</h2>
         {[
           { 
-            q: "How does the clock interface work?", 
-            a: "The clock is an SVG-based 24-hour visualization. Each task you create is rendered as a colored arc. The length of the arc corresponds to the task duration, and its position corresponds to the time of day." 
+            q: "How does this help with time blindness?", 
+            a: "When tasks are just lines of text on a screen, it is easy to forget they take up real space in the physical world. Arcadia scales your events into proportional shapes around a 24-hour dial. When you look at the screen, you can see if an upcoming task takes up a small slice of your afternoon or half of it." 
           },
           { 
-            q: "Is my data stored locally or in the cloud?", 
-            a: "Your tasks are synced to your account. This ensures that your schedule is consistent across different devices while maintaining a fast, client-side experience." 
+            q: "Where is my calendar data kept?", 
+            a: "Everything links to an online account so your data matches across your laptop and phone."
           },
           { 
-            q: "Does it support mobile devices?", 
-            a: "Yes. The interface is fully responsive. On smaller screens, the layout stacks to prioritize the clock visualization at the top, followed by your daily summary and navigation." 
+            q: "Does this work on mobile devices?", 
+            a: "Yes. The site reshapes itself for mobile layouts." 
           },
           { 
-            q: "How do I edit or delete a task?", 
-            a: "Simply click or tap directly on the task arc within the clock. This will open the task form where you can modify the name, time, color, or remove the task entirely." 
+            q: "How do I make changes to a task?", 
+            a: "Click or tap directly on the slice of time you want to alter on the clock wheel. A window pops up where you can type a new title, drag the handles to change the duration, swap the color indicator, or remove it entirely." 
           }
         ].map((item, i) => (
           <div key={i} style={{ borderBottom: "1px solid #222", padding: "30px 0" }}>
-            <p style={{ fontWeight: "600", fontSize: "18px", marginBottom: "12px", color: "#818cf8" }}>{item.q}</p>
+            <h3 style={{ fontWeight: "600", fontSize: "18px", marginBottom: "12px", color: "#818cf8" }}>{item.q}</h3>
             <p style={{ color: "#a3a3a3", fontSize: "16px", lineHeight: "1.6" }}>{item.a}</p>
           </div>
         ))}
       </section>
 
-      {/* CTA SECTION */}
       <section style={{ padding: "120px 20px", textAlign: "center" }}>
         <div style={{ 
           backgroundColor: "#111", 
@@ -255,18 +261,20 @@ const LandingPage = () => {
           maxWidth: "1000px",
           margin: "0 auto"
         }}>
-          <h2 style={{ fontSize: "40px", fontWeight: "600", marginBottom: "20px" }}>Start visual planning.</h2>
-          <p style={{ fontSize: "18px", marginBottom: "40px", color: "#a3a3a3" }}>Experience a more intuitive way to manage your 24 hours.</p>
-          <button 
-            onClick={() => router.push('/dashboard')}
-            style={{
-              backgroundColor: "white", color: "black", border: "none",
-              padding: "18px 48px", borderRadius: "6px", fontSize: "16px",
-              fontWeight: "600", cursor: "pointer"
-            }}
-          >
-            OPEN DASHBOARD
-          </button>
+          <h2 style={{ fontSize: "40px", fontWeight: "600", marginBottom: "20px" }}>Set up your wheel.</h2>
+          <p style={{ fontSize: "18px", marginBottom: "40px", color: "#a3a3a3" }}>Create an account to see your schedule mapped out as a visual day cycle.</p>
+          <div data-nosnippet>
+            <button 
+              onClick={() => router.push('/dashboard')}
+              style={{
+                backgroundColor: "white", color: "black", border: "none",
+                padding: "18px 48px", borderRadius: "6px", fontSize: "16px",
+                fontWeight: "600", cursor: "pointer"
+              }}
+            >
+              SIGN UP FOR FREE
+            </button>
+          </div>
         </div>
       </section>
 
