@@ -61,7 +61,7 @@ function ResetPasswordForm() {
     color: '#fff',
     padding: '12px',
     borderRadius: '6px',
-    fontFamily: 'var(--font-cuprum), sans-serif',
+    fontFamily: 'var(--font-geist-sans), sans-serif',
     opacity: loading ? 0.5 : 1,
     cursor: loading ? 'wait' : 'text',
     fontSize: '14px',
@@ -72,9 +72,9 @@ function ResetPasswordForm() {
 
   return (
     <div style={{
-      backgroundColor: '#000', minHeight: '100vh', display: 'flex',
+      backgroundColor: '#0B0F1A', minHeight: '100vh', display: 'flex',
       alignItems: 'center', justifyContent: 'center', color: 'white',
-      fontFamily: 'var(--font-cuprum), sans-serif',
+      fontFamily: 'var(--font-geist-sans), sans-serif',
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '300px' }}>
         <h1 style={{ letterSpacing: '4px', textAlign: 'center', margin: '0 0 20px 0', fontSize: '20px' }}>
@@ -98,7 +98,7 @@ function ResetPasswordForm() {
               style={{
                 background: '#fff', color: '#000', padding: '12px',
                 fontWeight: 'bold', cursor: 'pointer', borderRadius: '6px',
-                border: 'none', fontFamily: 'var(--font-cuprum), sans-serif',
+                border: 'none', fontFamily: 'var(--font-geist-sans), sans-serif',
                 fontSize: '13px', letterSpacing: '1px', textTransform: 'uppercase',
               }}
             >
@@ -161,7 +161,7 @@ function ResetPasswordForm() {
                 background: '#fff', color: '#000', padding: '12px',
                 fontWeight: 'bold', cursor: loading ? 'wait' : 'pointer',
                 borderRadius: '6px', border: 'none',
-                fontFamily: 'var(--font-cuprum), sans-serif',
+                fontFamily: 'var(--font-geist-sans), sans-serif',
                 fontSize: '13px', letterSpacing: '1px',
                 opacity: loading ? 0.6 : 1, textTransform: 'uppercase',
               }}

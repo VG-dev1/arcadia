@@ -1,11 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { UserProfile } from "@/lib/UserProfile";
 
 export function Navbar() {
-  const router = useRouter();
-
   return (
     <nav
       style={{
@@ -18,31 +15,11 @@ export function Navbar() {
         zIndex: 50,
       }}
     >
-      <span
-        style={{
-          fontSize: "22px",
-          letterSpacing: "3px",
-          color: "#fff",
-          textTransform: "uppercase",
-          fontFamily: "var(--font-cuprum), sans-serif",
-        }}
-      >
-        Arcadia
-      </span>
-      
-      <div style={{ display: "flex", gap: "50px" }}>
-        <button 
-          onClick={() => router.push('/dashboard')}
-          style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontFamily: "var(--font-cuprum), sans-serif" }}
-        >
-          Dashboard
-        </button>
-        <button 
-          onClick={() => router.push('/insights')}
-          style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontFamily: "var(--font-cuprum), sans-serif" }}
-        >
-          Insights
-        </button>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <img src="/icon.png" alt="Arcadia icon" />
+        <span style={{ fontSize: "22px", textTransform: "uppercase", letterSpacing: "3px", color: "#fff" }}>
+          Arcadia
+        </span>
       </div>
 
       <UserProfile />

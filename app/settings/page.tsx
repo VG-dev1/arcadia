@@ -13,8 +13,6 @@ import {
 } from 'firebase/auth';
 import { doc, updateDoc, deleteDoc, collection, getDocs, deleteDoc as deleteFirestoreDoc } from 'firebase/firestore';
 
-// ─── Shared primitives ────────────────────────────────────────────────────────
-
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <div style={{ marginBottom: "28px" }}>
     <label style={{
@@ -42,7 +40,7 @@ const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => 
       color: "white",
       padding: "10px 12px",
       fontSize: "15px",
-      fontFamily: "var(--font-cuprum), sans-serif",
+      fontFamily: "var(--font-geist-sans), sans-serif",
       outline: "none",
       boxSizing: "border-box",
       ...props.style,
@@ -70,15 +68,13 @@ const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ o
         minWidth: "420px",
         maxWidth: "480px",
         color: "white",
-        fontFamily: "var(--font-cuprum), sans-serif",
+        fontFamily: "var(--font-geist-sans), sans-serif",
       }}
     >
       {children}
     </div>
   </div>
 );
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -103,7 +99,6 @@ export default function SettingsPage() {
     }
   }, [userProfile]);
 
-  // Re-authenticate helper
   const reauth = async (password: string) => {
     if (!user?.email) throw new Error('No authenticated user.');
     const credential = EmailAuthProvider.credential(user.email, password);
@@ -202,17 +197,17 @@ export default function SettingsPage() {
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "13px",
-    fontFamily: "var(--font-cuprum), sans-serif",
+    fontFamily: "var(--font-geist-sans), sans-serif",
     letterSpacing: "0.5px",
   };
 
   return (
     <div style={{
-      backgroundColor: "#000",
+      backgroundColor: "#0B0F1A",
       minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
-      fontFamily: "var(--font-cuprum), sans-serif",
+      fontFamily: "var(--font-geist-sans), sans-serif",
       color: "white",
     }}>
 
@@ -307,7 +302,7 @@ export default function SettingsPage() {
                 borderRadius: "6px",
                 cursor: "pointer",
                 fontSize: "13px",
-                fontFamily: "var(--font-cuprum), sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
                 letterSpacing: "0.5px",
               }}
             >
@@ -326,7 +321,7 @@ export default function SettingsPage() {
                 cursor: saving ? "not-allowed" : "pointer",
                 fontSize: "13px",
                 fontWeight: "600",
-                fontFamily: "var(--font-cuprum), sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
                 letterSpacing: "0.5px",
                 opacity: saving ? 0.6 : 1,
               }}
@@ -379,7 +374,7 @@ export default function SettingsPage() {
                 background: "none", border: "1px solid #fff",
                 color: "#fff", padding: "10px 18px",
                 borderRadius: "6px", cursor: "pointer",
-                fontSize: "13px", fontFamily: "var(--font-cuprum), sans-serif",
+                fontSize: "13px", fontFamily: "var(--font-geist-sans), sans-serif",
               }}
             >
               Cancel
@@ -392,7 +387,7 @@ export default function SettingsPage() {
                 color: "white", padding: "10px 22px",
                 borderRadius: "6px", cursor: deleting ? "not-allowed" : "pointer",
                 fontSize: "13px", fontWeight: "600",
-                fontFamily: "var(--font-cuprum), sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
                 letterSpacing: "0.5px",
                 opacity: deleting ? 0.6 : 1,
               }}

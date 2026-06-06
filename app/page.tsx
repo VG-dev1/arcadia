@@ -30,9 +30,9 @@ const LandingPage = () => {
 
   return (
     <div style={{
-      backgroundColor: "#000",
+      backgroundColor: "#0B0F1A",
       color: "white",
-      fontFamily: "var(--font-cuprum), sans-serif",
+      fontFamily: "var(--font-geist-sans), sans-serif",
       overflowX: "hidden"
     }}>
       
@@ -158,7 +158,7 @@ const LandingPage = () => {
       
       <section data-nosnippet style={{ 
         padding: "80px 0", 
-        backgroundColor: "#000", 
+        backgroundColor: "#0B0F1A", 
         overflow: "hidden", 
         width: "100%" 
         }}>

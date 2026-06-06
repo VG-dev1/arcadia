@@ -128,7 +128,7 @@ export default function AuthPage() {
     <div style={{ 
       backgroundColor: '#000', height: '100vh', display: 'flex', 
       alignItems: 'center', justifyContent: 'center', color: 'white',
-      fontFamily: 'var(--font-cuprum), sans-serif' 
+      fontFamily: 'var(--font-geist-sans), sans-serif' 
     }}>
       {isForgotPassword ? (
         <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '300px' }}>
@@ -153,7 +153,7 @@ export default function AuthPage() {
             style={{
               background: '#111', border: '1px solid #fff', color: '#fff',
               padding: '12px', borderRadius: '6px',
-              fontFamily: 'var(--font-cuprum), sans-serif',
+              fontFamily: 'var(--font-geist-sans), sans-serif',
               opacity: loading ? 0.5 : 1, cursor: loading ? 'wait' : 'text'
             }}
           />
@@ -165,7 +165,7 @@ export default function AuthPage() {
               background: '#fff', color: '#000', padding: '12px',
               fontWeight: 'bold', cursor: loading ? 'wait' : 'pointer',
               borderRadius: '6px', border: 'none',
-              fontFamily: 'var(--font-cuprum), sans-serif',
+              fontFamily: 'var(--font-geist-sans), sans-serif',
               fontSize: '13px', letterSpacing: '1px',
               opacity: loading ? 0.6 : 1, textTransform: 'uppercase'
             }}
@@ -213,7 +213,7 @@ export default function AuthPage() {
             color: '#fff', 
             padding: '12px',
             borderRadius: '6px',
-            fontFamily: 'var(--font-cuprum), sans-serif',
+            fontFamily: 'var(--font-geist-sans), sans-serif',
             opacity: loading ? 0.5 : 1,
             cursor: loading ? 'wait' : 'text'
           }}
@@ -232,7 +232,7 @@ export default function AuthPage() {
               color: '#fff', 
               padding: '12px',
               borderRadius: '6px',
-              fontFamily: 'var(--font-cuprum), sans-serif',
+              fontFamily: 'var(--font-geist-sans), sans-serif',
               opacity: loading ? 0.5 : 1,
               cursor: loading ? 'wait' : 'text'
             }}
@@ -251,7 +251,7 @@ export default function AuthPage() {
             color: '#fff', 
             padding: '12px',
             borderRadius: '6px',
-            fontFamily: 'var(--font-cuprum), sans-serif',
+            fontFamily: 'var(--font-geist-sans), sans-serif',
             opacity: loading ? 0.5 : 1,
             cursor: loading ? 'wait' : 'text'
           }}
@@ -268,7 +268,7 @@ export default function AuthPage() {
             cursor: loading ? 'wait' : 'pointer',
             borderRadius: '6px',
             border: 'none',
-            fontFamily: 'var(--font-cuprum), sans-serif',
+            fontFamily: 'var(--font-geist-sans), sans-serif',
             fontSize: '13px',
             letterSpacing: '1px',
             opacity: loading ? 0.6 : 1,
@@ -294,7 +294,7 @@ export default function AuthPage() {
             padding: '12px',
             borderRadius: '6px',
             cursor: loading ? 'wait' : 'pointer',
-            fontFamily: 'var(--font-cuprum), sans-serif',
+            fontFamily: 'var(--font-geist-sans), sans-serif',
             fontSize: '13px',
             letterSpacing: '1px',
             opacity: loading ? 0.6 : 1,

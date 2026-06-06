@@ -58,7 +58,7 @@ export const UserProfile: React.FC = () => {
           color: 'white',
           cursor: 'pointer',
           padding: '10',
-          fontFamily: 'var(--font-cuprum), sans-serif',
+          fontFamily: 'var(--font-geist-sans), sans-serif',
         }}
       >
         {/* Initials Avatar */}
@@ -113,7 +113,7 @@ export const UserProfile: React.FC = () => {
               color: '#fff',
               textAlign: 'left',
               cursor: 'pointer',
-              fontFamily: 'var(--font-cuprum), sans-serif',
+              fontFamily: 'var(--font-geist-sans), sans-serif',
               fontSize: '13px',
               letterSpacing: '0.5px',
               transition: 'background-color 0.2s',
@@ -137,7 +137,7 @@ export const UserProfile: React.FC = () => {
               color: '#fff',
               textAlign: 'left',
               cursor: 'pointer',
-              fontFamily: 'var(--font-cuprum), sans-serif',
+              fontFamily: 'var(--font-geist-sans), sans-serif',
               fontSize: '13px',
               letterSpacing: '0.5px',
               transition: 'background-color 0.2s',

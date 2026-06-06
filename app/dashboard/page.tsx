@@ -110,7 +110,7 @@ const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ o
         minWidth: "380px",
         maxWidth: "90vw",
         color: "white",
-        fontFamily: "var(--font-cuprum), sans-serif",
+        fontFamily: "var(--font-geist-sans), sans-serif",
       }}
     >
       {children}
@@ -135,7 +135,7 @@ const ModalInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props
       color: "white",
       padding: "10px 12px",
       fontSize: "15px",
-      fontFamily: "var(--font-cuprum), sans-serif",
+      fontFamily: "var(--font-geist-sans), sans-serif",
       outline: "none",
       boxSizing: "border-box",
       ...props.style,
@@ -209,7 +209,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
   const btnBase: React.CSSProperties = {
     background: "none", border: "1px solid #fff", color: "#fff",
     padding: "8px 16px", borderRadius: "6px", cursor: "pointer",
-    fontSize: "13px", fontFamily: "var(--font-cuprum), sans-serif", letterSpacing: "0.5px",
+    fontSize: "13px", fontFamily: "var(--font-geist-sans), sans-serif", letterSpacing: "0.5px",
   };
 
   return (
@@ -227,7 +227,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
             backgroundColor: "#111", border: "1px solid #fff", borderRadius: "12px",
             padding: "36px", width: "560px", maxWidth: "95vw", height: "520px", maxHeight: "85vh",
             display: "flex", flexDirection: "column",
-            color: "white", fontFamily: "var(--font-cuprum), sans-serif",
+            color: "white", fontFamily: "var(--font-geist-sans), sans-serif",
             overflow: "hidden",
           }}
         >
@@ -240,7 +240,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
               style={{
                 background: "none", border: "1px solid #fff", color: "#fff",
                 padding: "8px 16px", borderRadius: "6px", cursor: "pointer",
-                fontSize: "12px", fontFamily: "var(--font-cuprum), sans-serif",
+                fontSize: "12px", fontFamily: "var(--font-geist-sans), sans-serif",
                 letterSpacing: "1px", textTransform: "uppercase",
               }}
             >
@@ -308,7 +308,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                               display: "block", width: "100%", textAlign: "left",
                               background: "none", border: "none", color: "#fff",
                               padding: "10px 14px", cursor: "pointer", fontSize: "13px",
-                              fontFamily: "var(--font-cuprum), sans-serif", letterSpacing: "0.5px",
+                              fontFamily: "var(--font-geist-sans), sans-serif", letterSpacing: "0.5px",
                               borderBottom: "1px solid #333",
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a2a2a")}
@@ -326,7 +326,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                               display: "block", width: "100%", textAlign: "left",
                               background: "none", border: "none", color: "#ef4444",
                               padding: "10px 14px", cursor: "pointer", fontSize: "13px",
-                              fontFamily: "var(--font-cuprum), sans-serif", letterSpacing: "0.5px",
+                              fontFamily: "var(--font-geist-sans), sans-serif", letterSpacing: "0.5px",
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a2a2a")}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
@@ -357,7 +357,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                 background: "white", border: "none", color: "black",
                 padding: "10px 28px", borderRadius: "6px", cursor: "pointer",
                 fontSize: "13px", fontWeight: "600",
-                fontFamily: "var(--font-cuprum), sans-serif", letterSpacing: "1px",
+                fontFamily: "var(--font-geist-sans), sans-serif", letterSpacing: "1px",
                 textTransform: "uppercase",
               }}
             >
@@ -380,7 +380,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
             style={{
               background: "#111", border: "1px solid #fff", borderRadius: "12px",
               padding: "32px", width: "360px",
-              fontFamily: "var(--font-cuprum), sans-serif", color: "#fff",
+              fontFamily: "var(--font-geist-sans), sans-serif", color: "#fff",
             }}
           >
             <h3 style={{ margin: "0 0 24px 0", fontSize: "16px", fontWeight: "600" }}>New Category</h3>
@@ -404,7 +404,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                   background: "white", border: "none", color: "black",
                   padding: "8px 20px", borderRadius: "6px", cursor: newCategoryName.trim() ? "pointer" : "not-allowed",
                   fontSize: "13px", fontWeight: "600",
-                  fontFamily: "var(--font-cuprum), sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                   opacity: newCategoryName.trim() ? 1 : 0.5,
                 }}
               >
@@ -428,7 +428,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
             style={{
               background: "#111", border: "1px solid #fff", borderRadius: "12px",
               padding: "32px", width: "360px",
-              fontFamily: "var(--font-cuprum), sans-serif", color: "#fff",
+              fontFamily: "var(--font-geist-sans), sans-serif", color: "#fff",
             }}
           >
             <h3 style={{ margin: "0 0 24px 0", fontSize: "16px", fontWeight: "600" }}>Edit Category</h3>
@@ -450,7 +450,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                   background: "white", border: "none", color: "black",
                   padding: "8px 20px", borderRadius: "6px", cursor: editName.trim() ? "pointer" : "not-allowed",
                   fontSize: "13px", fontWeight: "600",
-                  fontFamily: "var(--font-cuprum), sans-serif",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
                   opacity: editName.trim() ? 1 : 0.5,
                 }}
               >
@@ -556,7 +556,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             color: "white",
             padding: "10px 12px",
             fontSize: "15px",
-            fontFamily: "var(--font-cuprum), sans-serif",
+            fontFamily: "var(--font-geist-sans), sans-serif",
             outline: "none",
             cursor: "pointer",
           }}
@@ -647,7 +647,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           }}>
             {repeatEnabled && (
               <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-                <path d="M1 4L4 7.5L10 1" stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 4L4 7.5L10 1" stroke="#0B0F1A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             )}
           </div>
@@ -667,7 +667,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 backgroundColor: "#1a1a1a", border: "1px solid #fff",
                 borderRadius: "6px", color: "white",
                 padding: "10px 12px", fontSize: "15px",
-                fontFamily: "var(--font-cuprum), sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
                 outline: "none", width: "100%", boxSizing: "border-box",
               }}
             />
@@ -678,7 +678,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 backgroundColor: "#1a1a1a", border: "1px solid #fff",
                 borderRadius: "6px", color: "white",
                 padding: "10px 12px", fontSize: "15px",
-                fontFamily: "var(--font-cuprum), sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
                 outline: "none", width: "100%", boxSizing: "border-box",
                 cursor: "pointer", appearance: "none",
               }}
@@ -700,7 +700,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               background: "none", border: "1px solid #3a1a1a",
               color: "#ef4444", padding: "10px 18px",
               borderRadius: "6px", cursor: "pointer",
-              fontSize: "13px", fontFamily: "var(--font-cuprum), sans-serif",
+              fontSize: "13px", fontFamily: "var(--font-geist-sans), sans-serif",
               letterSpacing: "0.5px",
             }}
           >
@@ -719,7 +719,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 color: "white", padding: "10px 22px",
                 borderRadius: "6px", cursor: "pointer",
                 fontSize: "13px", fontWeight: "600",
-                fontFamily: "var(--font-cuprum), sans-serif",
+                fontFamily: "var(--font-geist-sans), sans-serif",
                 letterSpacing: "0.5px",
               }}
             >
@@ -732,7 +732,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               background: "none", border: "1px solid #fff",
               color: "#fff", padding: "10px 18px",
               borderRadius: "6px", cursor: "pointer",
-              fontSize: "13px", fontFamily: "var(--font-cuprum), sans-serif",
+              fontSize: "13px", fontFamily: "var(--font-geist-sans), sans-serif",
             }}
           >
             Cancel
@@ -752,7 +752,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   : "pointer",
               fontSize: "13px",
               fontWeight: "600",
-              fontFamily: "var(--font-cuprum), sans-serif",
+              fontFamily: "var(--font-geist-sans), sans-serif",
               letterSpacing: "0.5px",
               opacity:
                 !name || !selectedCategoryId || !startTime || !endTime
@@ -914,17 +914,17 @@ const ClockAppContent: React.FC = () => {
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "13px",
-    fontFamily: "var(--font-cuprum), sans-serif",
+    fontFamily: "var(--font-geist-sans), sans-serif",
     letterSpacing: "0.5px",
   };
 
   return (
     <div style={{
-      backgroundColor: "#000",
+      backgroundColor: "#0B0F1A",
       minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
-      fontFamily: "var(--font-cuprum), sans-serif",
+      fontFamily: "var(--font-geist-sans), sans-serif",
       color: "white",
     }}>
       <style>{`
@@ -1139,7 +1139,7 @@ const ClockAppContent: React.FC = () => {
             style={{
               backgroundColor: "white", color: "black", border: "none",
               padding: "12px 28px", borderRadius: "6px", fontSize: "13px",
-              fontWeight: "600", fontFamily: "var(--font-cuprum), sans-serif",
+              fontWeight: "600", fontFamily: "var(--font-geist-sans), sans-serif",
               letterSpacing: "1px", cursor: isSaving ? "wait" : "pointer", textTransform: "uppercase",
               display: "block", marginBottom: "16px", opacity: isSaving ? 0.6 : 1,
             }}
@@ -1230,7 +1230,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDate }) =>
             background: "none", border: "1px solid #fff",
             color: "#fff", padding: "10px 18px",
             borderRadius: "6px", cursor: "pointer",
-            fontSize: "13px", fontFamily: "var(--font-cuprum), sans-serif",
+            fontSize: "13px", fontFamily: "var(--font-geist-sans), sans-serif",
           }}
         >
           Cancel
@@ -1243,7 +1243,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDate }) =>
             color: "black", padding: "10px 22px",
             borderRadius: "6px", cursor: "pointer",
             fontSize: "13px", fontWeight: "600",
-            fontFamily: "var(--font-cuprum), sans-serif",
+            fontFamily: "var(--font-geist-sans), sans-serif",
             letterSpacing: "0.5px",
           }}
         >
