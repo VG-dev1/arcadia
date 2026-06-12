@@ -44,7 +44,8 @@ const LandingPage = () => {
         justifyContent: "center",
         textAlign: "center",
         padding: "0 20px",
-        position: "relative"
+        position: "relative",
+        overflow: "hidden"
       }}>
         <div style={{
           position: "absolute",
