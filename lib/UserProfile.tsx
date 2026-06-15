@@ -61,7 +61,6 @@ export const UserProfile: React.FC = () => {
           fontFamily: 'var(--font-geist-sans), sans-serif',
         }}
       >
-        {/* Initials Avatar */}
         <div
           style={{
             width: '32px',
@@ -80,13 +79,11 @@ export const UserProfile: React.FC = () => {
           {initials}
         </div>
 
-        {/* Username */}
         <span style={{ fontSize: '13px', letterSpacing: '0.5px' }}>
           {userProfile.username}
         </span>
       </button>
 
-      {/* Dropdown Menu */}
       {showDropdown && (
         <div
           style={{

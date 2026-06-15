@@ -211,7 +211,6 @@ export default function SettingsPage() {
       color: "white",
     }}>
 
-      {/* Top bar */}
       <div style={{
         display: "flex",
         justifyContent: "space-between",
@@ -223,7 +222,6 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      {/* Body */}
       <div style={{
         flex: 1,
         display: "flex",
@@ -233,7 +231,6 @@ export default function SettingsPage() {
       }}>
         <div style={{ width: "100%", maxWidth: "480px" }}>
 
-          {/* Heading */}
           <p style={{ fontSize: "11px", letterSpacing: "2.5px", color: "#fff", textTransform: "uppercase", margin: "0 0 12px 0" }}>
             Account
           </p>
@@ -241,7 +238,6 @@ export default function SettingsPage() {
             Settings
           </h1>
 
-          {/* Fields */}
           <Field label="Username">
             <Input
               value={username}
@@ -283,14 +279,12 @@ export default function SettingsPage() {
             />
           </Field>
 
-          {/* Error */}
           {error && (
             <p style={{ color: "#ef4444", fontSize: "13px", margin: "-8px 0 20px 0" }}>
               {error}
             </p>
           )}
 
-          {/* Actions */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
             <button
               onClick={() => setShowDeleteModal(true)}
@@ -332,7 +326,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Delete confirmation modal */}
       {showDeleteModal && (
         <Modal onClose={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError(''); }}>
           <h2 style={{ margin: "0 0 16px 0", fontSize: "18px", fontWeight: "600" }}>

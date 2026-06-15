@@ -827,6 +827,7 @@ const ClockAppContent: React.FC = () => {
 
   const ownIds = new Set(ownTasks.map((t) => t.id));
   const tasks: Task[] = [...ownTasks, ...repeatingTasks.filter((t) => !ownIds.has(t.id))];
+  console.log(tasks);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
