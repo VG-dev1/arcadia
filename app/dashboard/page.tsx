@@ -2,26 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/AuthContext';
+import { useAuth, type RepeatConfig, type Task } from '@/lib/AuthContext';
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
 
-type RepeatUnit = 'days' | 'weeks' | 'months' | 'years';
-
-interface RepeatConfig {
-  count: number;
-  unit: RepeatUnit;
-}
-
-interface Task {
-  id: string;
-  name: string;
-  start: number;
-  end: number;
-  color: string;
-  categoryId?: string;
-  repeat?: RepeatConfig;
-  repeatOrigin?: string;
-}
+type RepeatUnit = RepeatConfig['unit'];
 
 const PRESET_COLORS = [
   "#ffffff", "#a3a3a3", "#ef4444", "#f97316",
@@ -86,6 +70,10 @@ const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
     return yearDiff % count === 0 &&
       target.getMonth() === origin.getMonth() &&
       target.getDate() === origin.getDate();
+  }
+  if (unit == 'weekdays') {
+    const isWeekday = target.getDay() % 6 !== 0;
+    return isWeekday
   }
   return false;
 };
@@ -657,37 +645,58 @@ const TaskForm: React.FC<TaskFormProps> = ({
         </div>
 
         {repeatEnabled && (
-          <div style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: "10px" }}>
-            <input
-              type="number"
-              min={1}
-              value={repeatCount}
-              onChange={(e) => setRepeatCount(Math.max(1, parseInt(e.target.value) || 1))}
-              style={{
-                backgroundColor: "#1a1a1a", border: "1px solid #fff",
-                borderRadius: "6px", color: "white",
-                padding: "10px 12px", fontSize: "15px",
-                fontFamily: "var(--font-geist-sans), sans-serif",
-                outline: "none", width: "100%", boxSizing: "border-box",
-              }}
-            />
-            <select
-              value={repeatUnit}
-              onChange={(e) => setRepeatUnit(e.target.value as RepeatUnit)}
-              style={{
-                backgroundColor: "#1a1a1a", border: "1px solid #fff",
-                borderRadius: "6px", color: "white",
-                padding: "10px 12px", fontSize: "15px",
-                fontFamily: "var(--font-geist-sans), sans-serif",
-                outline: "none", width: "100%", boxSizing: "border-box",
-                cursor: "pointer", appearance: "none",
-              }}
-            >
-              <option value="days">Days</option>
-              <option value="weeks">Weeks</option>
-              <option value="months">Months</option>
-              <option value="years">Years</option>
-            </select>
+          <div style={{ display: "grid", gap: "10px" }}>
+            <div>
+              <ModalLabel>Repeat interval</ModalLabel>
+              <select
+                value={repeatUnit}
+                onChange={(e) => setRepeatUnit(e.target.value as RepeatUnit)}
+                style={{
+                  width: "100%",
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #fff",
+                  borderRadius: "6px",
+                  color: "white",
+                  padding: "10px 12px",
+                  fontSize: "15px",
+                  fontFamily: "var(--font-geist-sans), sans-serif",
+                  outline: "none",
+                  cursor: "pointer",
+                  appearance: "none",
+                  boxSizing: "border-box",
+                }}
+              >
+                <option value="days">Daily</option>
+                <option value="weeks">Weekly</option>
+                <option value="months">Monthly</option>
+                <option value="years">Yearly</option>
+                <option value="weekdays">On weekdays</option>
+              </select>
+            </div>
+
+            {repeatUnit !== "weekdays" && (
+              <div>
+                <ModalLabel>Every</ModalLabel>
+                <input
+                  type="number"
+                  min={1}
+                  value={repeatCount}
+                  onChange={(e) => setRepeatCount(Math.max(1, parseInt(e.target.value) || 1))}
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#1a1a1a",
+                    border: "1px solid #fff",
+                    borderRadius: "6px",
+                    color: "white",
+                    padding: "10px 12px",
+                    fontSize: "15px",
+                    fontFamily: "var(--font-geist-sans), sans-serif",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
