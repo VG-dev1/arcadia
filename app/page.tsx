@@ -101,6 +101,13 @@ export default function LandingPage() {
             align-items: center;
             width: 100%;
           }
+          
+          .hero-right-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+          }
+
           @media (max-width: 1024px) {
             .hero-container {
               grid-template-columns: 1fr;
@@ -109,9 +116,19 @@ export default function LandingPage() {
             }
             .hero-left { order: 1; }
             .hero-right { order: 2; display: flex; justify-content: center; }
+            
+            .hero-right-wrapper {
+              max-width: 380px;
+              margin: 0 auto;
+            }
           }
 
-          /* Alternating Zig-Zag Grid Rows */
+          @media (max-width: 480px) {
+            .hero-right-wrapper {
+              max-width: 290px;
+            }
+          }
+
           .feature-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -120,7 +137,6 @@ export default function LandingPage() {
             margin-bottom: 120px;
           }
 
-          /* Flip row order on alternating items */
           .feature-row.reverse .feature-text-block {
             order: 2;
           }
@@ -128,7 +144,6 @@ export default function LandingPage() {
             order: 1;
           }
 
-          /* Cleaned up: Removed fixed height, letting the content scale naturally */
           .feature-visual-frame {
             display: flex;
             align-items: center;
@@ -138,17 +153,16 @@ export default function LandingPage() {
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            padding: 24px;          /* Clean breathing room around the screenshot */
+            padding: 24px;
             box-sizing: border-box;
-            width: 100%;            /* Fills its half of the grid layout */
+            width: 100%;
           }
 
-          /* Let the screenshot define the size safely */
           .feature-image {
             width: 100%;
-            height: auto;           /* Scale dynamically based on width */
+            height: auto;
             display: block;
-            border-radius: 8px;     /* Optional: cleanly rounds your screenshot corners inside the frame */
+            border-radius: 8px;
           }
 
           @media (max-width: 768px) {
@@ -160,7 +174,6 @@ export default function LandingPage() {
             .feature-row .feature-text-block { order: 2 !important; }
             .feature-row .feature-visual-frame { order: 1 !important; }
             
-            /* Mobile padding adjustment */
             .feature-visual-frame {
               padding: 16px;
             }
@@ -172,7 +185,7 @@ export default function LandingPage() {
             <p style={{ letterSpacing: "4px", color: "#a3a3a3", fontSize: "13px", textTransform: "uppercase", marginBottom: "20px", fontWeight: "500" }}>
               Visual time management software
             </p>
-            <h1 style={{ fontSize: "clamp(42px, 5.5vw, 76px)", fontWeight: "600", lineHeight: "1.05", margin: "0 0 24px 0", letterSpacing: "-2px" }}>
+            <h1 style={{ fontSize: "clamp(32px, 5.5vw, 76px)", fontWeight: "600", lineHeight: "1.1", margin: "0 0 24px 0", letterSpacing: "-2px" }}>
               Stop losing track of hours.<br />See your day on a <span style={{ color: "#818cf8" }}>24-hour circle.</span>
             </h1>
             <p style={{ fontSize: "18px", color: "#a3a3a3", maxWidth: "600px", margin: "0 auto 40px 0", lineHeight: "1.6" }}>
@@ -195,102 +208,109 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="hero-right" style={{ display: "flex", justifyContent: "center", position: "relative" }}>
-            <div style={{
-              position: "relative",
-              padding: "20px",
-              background: "radial-gradient(circle at center, rgba(129, 140, 248, 0.04) 0%, transparent 70%)",
-              borderRadius: "50%"
-            }}>
-              <svg
-                width={clockSize}
-                height={clockSize}
-                viewBox={`0 0 ${clockSize} ${clockSize}`}
-                style={{ display: "block", filter: "drop-shadow(0 0 24px rgba(0,0,0,0.5))" }}
-              >
-                {Array.from({ length: 288 }).map((_, i) => {
-                  const mins = i * 5;
-                  let length = 4;
-                  let color = "rgba(255, 255, 255, 0.25)";
-                  if (mins % 360 === 0) { length = 12; color = "rgba(255, 255, 255, 0.8)"; }
-                  else if (mins % 60 === 0) { length = 9; color = "rgba(255, 255, 255, 0.5)"; }
-                  else if (mins % 20 === 0) { length = 6; color = "rgba(255, 255, 255, 0.35)"; }
-                  return (
-                    <line
-                      key={mins}
-                      x1={center} y1={center - radius - 10}
-                      x2={center} y2={center - radius - 10 - length}
-                      stroke={color}
-                      strokeWidth="1"
-                      transform={`rotate(${(mins / 1440) * 360} ${center} ${center})`}
-                    />
-                  );
-                })}
-
-                {[0, 6, 12, 18].map((h) => {
-                  const angle = (h / 24) * 360 - 90;
-                  const labelR = radius + 30;
-                  const lx = center + labelR * Math.cos((angle * Math.PI) / 180);
-                  const ly = center + labelR * Math.sin((angle * Math.PI) / 180);
-                  return (
-                    <text key={h} x={lx} y={ly} fill="rgba(255, 255, 255, 0.4)" fontSize="11px"
-                      fontWeight="600" textAnchor="middle" dominantBaseline="central" letterSpacing="0.5px">
-                      {h === 0 ? "00:00" : `${h}:00`}
-                    </text>
-                  );
-                })}
-
-                {DEMO_TASKS.map((task) => {
-                  const duration = task.end - task.start;
-                  const strokeLength = (duration / 1440) * circumference;
-                  const rotDeg = getRotation(task.start);
-                  const startOffset = ((rotDeg + 90) / 360) * circumference;
-                  const textOffset = startOffset + strokeLength / 2;
-
-                  return (
-                    <g key={task.id}>
-                      <circle
-                        cx={center} cy={center} r={radius}
-                        fill="none"
-                        stroke={task.color}
-                        strokeWidth={arcWidth}
-                        strokeOpacity="0.35"
-                        strokeDasharray={`${strokeLength} ${circumference}`}
-                        strokeDashoffset={hasLoaded ? 0 : strokeLength}
-                        style={{ transition: "stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)" }}
-                        transform={`rotate(${rotDeg} ${center} ${center})`}
+          <div className="hero-right" style={{ display: "flex", justifyContent: "center", position: "relative", width: "100%" }}>
+            <div className="hero-right-wrapper">
+              <div style={{
+                position: "relative",
+                padding: "20px",
+                background: "radial-gradient(circle at center, rgba(129, 140, 248, 0.04) 0%, transparent 70%)",
+                borderRadius: "50%",
+                width: "100%",
+                boxSizing: "border-box"
+              }}>
+                <svg
+                  viewBox={`0 0 ${clockSize} ${clockSize}`}
+                  style={{ 
+                    display: "block", 
+                    filter: "drop-shadow(0 0 24px rgba(0,0,0,0.5))",
+                    width: "100%",
+                    height: "auto"
+                  }}
+                >
+                  {Array.from({ length: 288 }).map((_, i) => {
+                    const mins = i * 5;
+                    let length = 4;
+                    let color = "rgba(255, 255, 255, 0.25)";
+                    if (mins % 360 === 0) { length = 12; color = "rgba(255, 255, 255, 0.8)"; }
+                    else if (mins % 60 === 0) { length = 9; color = "rgba(255, 255, 255, 0.5)"; }
+                    else if (mins % 20 === 0) { length = 6; color = "rgba(255, 255, 255, 0.35)"; }
+                    return (
+                      <line
+                        key={mins}
+                        x1={center} y1={center - radius - 10}
+                        x2={center} y2={center - radius - 10 - length}
+                        stroke={color}
+                        strokeWidth="1"
+                        transform={`rotate(${(mins / 1440) * 360} ${center} ${center})`}
                       />
-                      <path
-                        id={`landing-path-${task.id}`}
-                        d={`M ${center},${center - radius} a ${radius},${radius} 0 1,1 0,${2 * radius} a ${radius},${radius} 0 1,1 0,-${2 * radius}`}
-                        fill="none"
-                      />
-                      <text fill={task.color} fontSize="10px" fontWeight="600" opacity="0.85" letterSpacing="0.2px">
-                        <textPath href={`#landing-path-${task.id}`} startOffset={textOffset} textAnchor="middle" dominantBaseline="central">
-                          {task.name}
-                        </textPath>
+                    );
+                  })}
+
+                  {[0, 6, 12, 18].map((h) => {
+                    const angle = (h / 24) * 360 - 90;
+                    const labelR = radius + 30;
+                    const lx = center + labelR * Math.cos((angle * Math.PI) / 180);
+                    const ly = center + labelR * Math.sin((angle * Math.PI) / 180);
+                    return (
+                      <text key={h} x={lx} y={ly} fill="rgba(255, 255, 255, 0.4)" fontSize="11px"
+                        fontWeight="600" textAnchor="middle" dominantBaseline="central" letterSpacing="0.5px">
+                        {h === 0 ? "00:00" : `${h}:00`}
                       </text>
-                    </g>
-                  );
-                })}
+                    );
+                  })}
 
-                <circle
-                  cx={center + radius * Math.sin((handAngle * Math.PI) / 180)}
-                  cy={center - radius * Math.cos((handAngle * Math.PI) / 180)}
-                  r="5" 
-                  fill="white" 
-                  style={{ filter: "drop-shadow(0 0 6px white)" }}
-                />
+                  {DEMO_TASKS.map((task) => {
+                    const duration = task.end - task.start;
+                    const strokeLength = (duration / 1440) * circumference;
+                    const rotDeg = getRotation(task.start);
+                    const startOffset = ((rotDeg + 90) / 360) * circumference;
+                    const textOffset = startOffset + strokeLength / 2;
 
-                <text x={center} y={center - 12} fill="white" fontSize="42px" fontWeight="600"
-                  textAnchor="middle" dominantBaseline="central" letterSpacing="-1px">
-                  {minutesToTime(animatedMinutes)}
-                </text>
-                <text x={center} y={center + 26} fill="#818cf8" fontSize="11px"
-                  textAnchor="middle" letterSpacing="3px" fontWeight="600">
-                  LIVE DEMO
-                </text>
-              </svg>
+                    return (
+                      <g key={task.id}>
+                        <circle
+                          cx={center} cy={center} r={radius}
+                          fill="none"
+                          stroke={task.color}
+                          strokeWidth={arcWidth}
+                          strokeOpacity="0.35"
+                          strokeDasharray={`${strokeLength} ${circumference}`}
+                          strokeDashoffset={hasLoaded ? 0 : strokeLength}
+                          style={{ transition: "stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)" }}
+                          transform={`rotate(${rotDeg} ${center} ${center})`}
+                        />
+                        <path
+                          id={`landing-path-${task.id}`}
+                          d={`M ${center},${center - radius} a ${radius},${radius} 0 1,1 0,${2 * radius} a ${radius},${radius} 0 1,1 0,-${2 * radius}`}
+                          fill="none"
+                        />
+                        <text fill={task.color} fontSize="10px" fontWeight="600" opacity="0.85" letterSpacing="0.2px">
+                          <textPath href={`#landing-path-${task.id}`} startOffset={textOffset} textAnchor="middle" dominantBaseline="central">
+                            {task.name}
+                          </textPath>
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  <circle
+                    cx={center + radius * Math.sin((handAngle * Math.PI) / 180)}
+                    cy={center - radius * Math.cos((handAngle * Math.PI) / 180)}
+                    r="5" 
+                    fill="white" 
+                    style={{ filter: "drop-shadow(0 0 6px white)" }}
+                  />
+
+                  <text x={center} y={center - 12} fill="white" fontSize="42px" fontWeight="600"
+                    textAnchor="middle" dominantBaseline="central" letterSpacing="-1px">
+                    {minutesToTime(animatedMinutes)}
+                  </text>
+                  <text x={center} y={center + 26} fill="#818cf8" fontSize="11px"
+                    textAnchor="middle" letterSpacing="3px" fontWeight="600">
+                    LIVE DEMO
+                  </text>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
