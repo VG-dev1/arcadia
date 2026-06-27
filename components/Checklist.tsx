@@ -110,7 +110,7 @@ export default function Checklist() {
 
   if (!mounted || !pathname) return null;
   
-  const allowedRoutes = ['/dashboard', '/focus', '/insights'];
+  const allowedRoutes = ['/dashboard', '/focus', '/insights', '/todo'];
   if (!allowedRoutes.includes(pathname) || !user) return null;
 
   const completedCount = items.filter(item => item.current === item.total).length;
