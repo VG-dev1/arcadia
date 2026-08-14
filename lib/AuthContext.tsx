@@ -16,7 +16,7 @@ import { auth, db } from './firebase';
 
 export interface RepeatConfig {
   count: number;
-  unit: 'days' | 'weeks' | 'months' | 'years';
+  unit: 'days' | 'weeks' | 'months' | 'years' | 'weekdays';
 }
 
 export interface Task {
