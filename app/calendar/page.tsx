@@ -70,6 +70,36 @@ export function CalendarPageContent() {
     return [...ownTasks, ...repeatingTasks.filter((task) => !ownIds.has(task.id))].sort((a, b) => a.start - b.start);
   };
 
+  const getHeatmapColor = (count: number): string => {
+    if (count === 0) return '#131828';
+    if (count <= 2) return '#1E293B';
+    if (count <= 5) return '#1E3A8A';
+    if (count <= 8) return '#0369A1';
+    if (count <= 12) return '#0D9488';
+    return '#38BDF8';
+  };
+
+  const taskHeatmapForDate = (date: Date): string => {
+    const currentKey = dateKey(date);
+    const ownTasks = allTasks[currentKey] ?? [];
+    const ownIds = new Set(ownTasks.map((task) => task.id));
+
+    let count = ownTasks.length;
+
+    for (const [key, dayTasks] of Object.entries(allTasks)) {
+      if (key === currentKey) continue;
+
+      for (const task of dayTasks) {
+        if (task.repeat && !ownIds.has(task.id) && doesTaskRepeatOnDate(task, currentKey)) {
+          count++;
+          ownIds.add(task.id);
+        }
+      }
+    }
+
+    return getHeatmapColor(count);
+  };
+
   const handleAddTask = async (task: Omit<Task, "id">) => {
     const currentKey = dateKey(viewedDate);
     setIsSaving(true);
@@ -198,7 +228,7 @@ export function CalendarPageContent() {
           gridTemplateColumns: "80px repeat(7, minmax(120px, 1fr))",
           border: "1px solid #ddd",
           overflowX: "auto",
-          margin: "0 0 16px 6px"
+          margin: "0 0 16px 6px",
         }}
       >
         <div
@@ -222,7 +252,7 @@ export function CalendarPageContent() {
                 fontWeight: 600,
                 borderRight: "1px solid #ddd",
                 borderBottom: "1px solid #ddd",
-                background: "#0B0E1A",
+                background: taskHeatmapForDate(date),
               }}
             >
               <div>{days[i]}</div>
