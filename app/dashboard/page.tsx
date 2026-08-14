@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, type RepeatConfig, type Task } from '@/lib/AuthContext';
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
+import { db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 type RepeatUnit = RepeatConfig['unit'];
 
@@ -34,6 +36,25 @@ const formatDuration = (mins: number): string => {
 
 const dateKey = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+const sanitizeForFirestore = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizeForFirestore(item)).filter((item) => item !== undefined);
+  }
+
+  if (value && typeof value === 'object') {
+    const cleaned: Record<string, unknown> = {};
+    Object.entries(value as Record<string, unknown>).forEach(([key, entry]) => {
+      const sanitized = sanitizeForFirestore(entry);
+      if (sanitized !== undefined) {
+        cleaned[key] = sanitized;
+      }
+    });
+    return cleaned;
+  }
+
+  return value;
+};
 
 const getDateLabel = (d: Date, today: Date): string => {
   const dk = dateKey(d);
@@ -789,6 +810,11 @@ const ClockAppContent: React.FC = () => {
   const [dayOffset, setDayOffset] = useState(0);
   const [showAdd, setShowAdd] = useState(false);
   const [showDateSelect, setShowDateSelect] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareTemplateName, setShareTemplateName] = useState('');
+  const [shareLink, setShareLink] = useState('');
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareError, setShareError] = useState('');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [clockSize, setClockSize] = useState(520);
@@ -798,7 +824,7 @@ const ClockAppContent: React.FC = () => {
     setIsMounted(true);
   }, []);
   
-  const { allTasks, addTask, updateTask, deleteTask } = useAuth();
+  const { allTasks, addTask, updateTask, deleteTask, userProfile, user } = useAuth();
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -836,7 +862,6 @@ const ClockAppContent: React.FC = () => {
 
   const ownIds = new Set(ownTasks.map((t) => t.id));
   const tasks: Task[] = [...ownTasks, ...repeatingTasks.filter((t) => !ownIds.has(t.id))];
-  console.log(tasks);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -877,6 +902,37 @@ const ClockAppContent: React.FC = () => {
         alert('Error deleting task: ' + (error as any).message);
       }
       setIsSaving(false);
+    }
+  };
+
+  const handleShareTemplate = async () => {
+    const trimmedName = shareTemplateName.trim();
+    if (!trimmedName) return;
+
+    setIsSharing(true);
+    setShareError('');
+
+    try {
+      const templateId = crypto.randomUUID();
+      const templatePayload = sanitizeForFirestore({
+        id: templateId,
+        name: trimmedName,
+        authorName: userProfile?.username || userProfile?.email?.split('@')[0] || 'Anonymous',
+        authorId: user?.uid || null,
+        dateKey: currentKey,
+        tasks: tasks.map((task) => ({ ...task })),
+        createdAt: new Date().toISOString(),
+      });
+
+      await setDoc(doc(db, 'templates', templateId), templatePayload as Record<string, unknown>);
+
+      setShareLink(`/templates/${templateId}`);
+      setShareTemplateName('');
+    } catch (error) {
+      console.error('Error sharing template:', error);
+      setShareError('Could not create a shareable template right now.');
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -985,6 +1041,8 @@ const ClockAppContent: React.FC = () => {
               )}
               <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
               <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
+              <button style={navBtnStyle} onClick={() => { setShareError(''); setShareLink(''); setShowShareModal(true); }}>Share</button>
+
             </div>
           </div>
 
@@ -1133,6 +1191,68 @@ const ClockAppContent: React.FC = () => {
             setDayOffset(diffDays);
           }}
         />
+      )}
+
+      {showShareModal && (
+        <Modal onClose={() => { setShowShareModal(false); setShareError(''); setShareLink(''); setShareTemplateName(''); }}>
+          <h2 style={{ margin: "0 0 24px 0", fontSize: "18px", fontWeight: "600", letterSpacing: "0.5px" }}>
+            Share Template
+          </h2>
+
+          {shareLink ? (
+            <>
+              <p style={{ margin: "0 0 12px 0", color: "#fff", lineHeight: 1.6 }}>
+                Your template is ready. Share this link:
+              </p>
+              <a href={shareLink} style={{ display: "block", color: "#818cf8", wordBreak: "break-all", marginBottom: "24px" }}>
+                {shareLink}
+              </a>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => { setShowShareModal(false); setShareError(''); setShareLink(''); setShareTemplateName(''); }}
+                  style={{ background: "none", border: "1px solid #fff", color: "#fff", padding: "10px 18px", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => router.push(shareLink)}
+                  style={{ background: "white", border: "none", color: "black", padding: "10px 22px", borderRadius: "6px", cursor: "pointer", fontWeight: 600 }}
+                >
+                  Open
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ marginBottom: "24px" }}>
+                <ModalLabel>Template name</ModalLabel>
+                <ModalInput
+                  value={shareTemplateName}
+                  onChange={(e) => { setShareTemplateName(e.target.value); setShareError(''); }}
+                  onKeyDown={(e) => e.key === 'Enter' && handleShareTemplate()}
+                  placeholder="e.g. Morning planning"
+                  autoFocus
+                />
+                {shareError && <p style={{ color: "#ef4444", fontSize: "12px", margin: "8px 0 0 0" }}>{shareError}</p>}
+              </div>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => { setShowShareModal(false); setShareError(''); setShareLink(''); setShareTemplateName(''); }}
+                  style={{ background: "none", border: "1px solid #fff", color: "#fff", padding: "10px 18px", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleShareTemplate}
+                  disabled={!shareTemplateName.trim() || isSharing}
+                  style={{ background: "white", border: "none", color: "black", padding: "10px 22px", borderRadius: "6px", cursor: !shareTemplateName.trim() || isSharing ? "not-allowed" : "pointer", fontWeight: 600, opacity: !shareTemplateName.trim() || isSharing ? 0.5 : 1 }}
+                >
+                  {isSharing ? 'Generating...' : 'Generate'}
+                </button>
+              </div>
+            </>
+          )}
+        </Modal>
       )}
     </div>
   );

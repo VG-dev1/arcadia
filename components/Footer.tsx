@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 
-const FOOTER_ROUTES = ["/", "/privacy", "/terms"];
+const FOOTER_ROUTES = ["/", "/privacy", "/terms", "/templates"];
 
 export function Footer() {
   const pathname = usePathname();
@@ -152,6 +152,13 @@ export function Footer() {
               </button>
               <button onClick={() => router.push('/terms')} className="footer-link-btn">
                 Terms of Service
+              </button>
+            </div>
+
+            <div className="footer-links-column">
+              <h5 className="footer-links-title">Resources</h5>
+              <button onClick={() => router.push('/templates')} className="footer-link-btn">
+                Templates
               </button>
             </div>
 
