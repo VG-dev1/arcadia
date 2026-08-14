@@ -145,7 +145,7 @@ export default function TemplatesPage() {
               <Link key={template.id} href={`/templates/${template.id}`} style={{ textDecoration: 'none' }}>
                 <div style={{ backgroundColor: '#111', border: '1px solid #fff', borderRadius: '12px', padding: '24px', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', transition: 'transform 0.2s ease', cursor: 'pointer' }}>
                   <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#fff' }}>{template.name}</p>
-                  <TemplateClockView tasks={template.tasks}></TemplateClockView>
+                  <TemplateClockView tasks={template.tasks} size={220}></TemplateClockView>
                 </div>
               </Link>
             ))}

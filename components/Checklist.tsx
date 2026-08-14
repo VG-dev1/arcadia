@@ -16,35 +16,41 @@ interface ChecklistItem {
 
 const DEFAULT_CHECKLIST: ChecklistItem[] = [
   { 
+    id: 'sign-up', 
+    label: 'Sign up', 
+    current: 1, 
+    total: 1, 
+    description: 'Create a free Arcadia account.' 
+  },
+  { 
     id: 'create-task', 
-    label: 'Create a task', 
+    label: 'Create 5 tasks', 
     current: 0, 
     total: 5, 
-    description: 'Go to the Dashboard page, click "Add task", customize the settings and click "Save"' 
+    description: 'Go to a view page, click "Add task", customize the settings and click "Save"' 
   },
   { 
     id: 'add-category', 
     label: 'Add a custom category', 
     current: 0, 
-    total: 1, 
+    total: 2, 
     description: 'While adding/editing a task, click the "Category" dropdown, select "Manage Categories", add your category and click "Save"' 
   },
   { 
     id: 'focus-session', 
-    label: 'Complete a focus session', 
+    label: 'Complete 3 focus sessions', 
     current: 0, 
     total: 3, 
-    description: 'Click on a pre-existing task on a clock and click the "Focus" button' 
+    description: 'Click on a pre-existing task and click the "Focus" button' 
   },
 ];
 
 export default function Checklist() {
   const pathname = usePathname();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, allTasks, categories } = useAuth();
   
   const [isOpen, setIsOpen] = useState(true);
   const [items, setItems] = useState<ChecklistItem[]>([]);
-  const [saving, setSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -59,10 +65,11 @@ export default function Checklist() {
         
         const mergedItems = DEFAULT_CHECKLIST.map(defaultItem => {
           const profileItem = profileItemsMap.get(defaultItem.id) as any;
+          let current = profileItem ? profileItem.current : defaultItem.current;
+          if (defaultItem.id === 'sign-up') current = defaultItem.total;
           return {
             ...defaultItem,
-            current: profileItem ? profileItem.current : defaultItem.current,
-            total: profileItem ? profileItem.total : defaultItem.total,
+            current,
           };
         });
         
@@ -84,37 +91,73 @@ export default function Checklist() {
     }
   };
 
-  const updateProgress = async (itemId: string, incrementBy: number = 1) => {
-    if (saving || !user) return;
+  const saveChecklist = async (checklistItems: ChecklistItem[]) => {
+    if (!user) return;
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, { checklist: checklistItems });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const computeAutomaticProgress = (checklistItems: ChecklistItem[]) => {
+    const totalTaskCount = Object.values(allTasks).reduce((sum, dayTasks) => sum + dayTasks.length, 0);
+    const customCategoryCount = categories.filter(category => category.id !== 'general').length;
+
+    return checklistItems.map(item => {
+      if (item.id === 'sign-up') return { ...item, current: item.total };
+      if (item.id === 'create-task') return { ...item, current: Math.min(totalTaskCount, item.total) };
+      if (item.id === 'add-category') return { ...item, current: Math.min(customCategoryCount, item.total) };
+      return item;
+    });
+  };
+
+  useEffect(() => {
+    if (!items.length || !user) return;
+
+    const updatedItems = computeAutomaticProgress(items);
+
+    const hasChanges = updatedItems.some((item, index) =>
+      item.current !== items[index].current || item.total !== items[index].total
+    );
+
+    if (hasChanges) {
+      saveChecklist(updatedItems);
+    }
+  }, [allTasks, categories, items, user]);
+
+  useEffect(() => {
+    if (!items.length || !user || typeof window === 'undefined') return;
+
+    if (window.localStorage.getItem('focusSessionCompleted') !== 'true') return;
 
     const updatedItems = items.map(item => {
-      if (item.id === itemId) {
-        const nextCount = Math.min(item.current + incrementBy, item.total);
-        return { ...item, current: nextCount };
+      if (item.id === 'focus-session' && item.current < item.total) {
+        return { ...item, current: item.current + 1 };
       }
       return item;
     });
 
-    setItems(updatedItems);
-    setSaving(true);
+    const hasChanges = updatedItems.some((item, index) => item.current !== items[index].current);
 
-    try {
-      const userDocRef = doc(db, 'users', user.uid);
-      await updateDoc(userDocRef, { checklist: updatedItems });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setSaving(false);
+    if (hasChanges) {
+      setItems(updatedItems);
+      saveChecklist(updatedItems);
     }
-  };
+
+    window.localStorage.removeItem('focusSessionCompleted');
+  }, [items, user]);
 
   if (!mounted || !pathname) return null;
   
   const allowedRoutes = ['/dashboard', '/focus', '/insights', '/todo', '/calendar'];
   if (!allowedRoutes.includes(pathname) || !user) return null;
 
-  const completedCount = items.filter(item => item.current === item.total).length;
-  const totalItems = items.length;
+  const displayItems = computeAutomaticProgress(items);
+
+  const completedCount = displayItems.filter(item => item.current === item.total).length;
+  const totalItems = displayItems.length;
   const overallPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
   return (
@@ -197,7 +240,7 @@ export default function Checklist() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '280px', overflowY: 'auto', paddingRight: '4px' }}>
-            {items.map((item) => {
+            {displayItems.map((item) => {
               const isCompleted = item.current === item.total;
               return (
                 <div 
@@ -208,10 +251,9 @@ export default function Checklist() {
                     gap: '12px',
                     padding: '8px',
                     borderRadius: '12px',
-                    cursor: isCompleted ? 'default' : 'pointer',
+                    cursor: 'default',
                     backgroundColor: isCompleted ? 'rgba(16, 185, 129, 0.05)' : 'transparent'
                   }}
-                  onClick={() => !isCompleted && updateProgress(item.id)}
                 >
                   <div style={{ marginTop: '2px', display: 'flex', height: '20px', width: '20px', flexShrink: 0, alignItems: 'center', justifyContent: 'center' }}>
                     {isCompleted ? (

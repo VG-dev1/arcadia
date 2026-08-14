@@ -6,10 +6,11 @@ import type { Task } from '@/lib/AuthContext';
 interface TemplateClockViewProps {
   tasks: Task[];
   now?: Date;
+  size: number;
 }
 
-function TemplateClockViewContent({ tasks, now = new Date() }: TemplateClockViewProps) {
-  const clockSize = 420;
+function TemplateClockViewContent({ tasks, now = new Date(), size }: TemplateClockViewProps) {
+  const clockSize = size;
   const center = clockSize / 2;
   const radius = (clockSize / 2) * 0.73;
   const circumference = 2 * Math.PI * radius;
@@ -93,11 +94,7 @@ function TemplateClockViewContent({ tasks, now = new Date() }: TemplateClockView
       <svg width={clockSize} height={clockSize} viewBox={`0 0 ${clockSize} ${clockSize}`}>
         {tickMarks}
         {labels}
-        {taskArcs}
-
-        <text x={center} y={center - 16} fill="white" fontSize="52px" fontWeight="600" textAnchor="middle" dominantBaseline="central" letterSpacing="-1">
-          Template
-        </text>
+        {taskArcs}  
       </svg>
     </div>
   );

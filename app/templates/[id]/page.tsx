@@ -69,6 +69,20 @@ export default function SharedTemplatePage() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0B0F1A', color: 'white', fontFamily: 'var(--font-geist-sans), sans-serif', padding: '40px 24px' }}>
+      <style>{`
+        .template-detail-grid {
+          display: grid;
+          grid-template-columns: 1.1fr 0.9fr;
+          gap: 24px;
+          align-items: start;
+        }
+
+        @media (max-width: 768px) {
+          .template-detail-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
       <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
         <div style={{ marginBottom: '24px' }}>
           <p style={{ fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', margin: '0 0 8px 0', color: '#fff' }}>
@@ -90,9 +104,9 @@ export default function SharedTemplatePage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '24px', alignItems: 'start' }}>
+        <div className="template-detail-grid">
           <div style={{ backgroundColor: '#111', border: '1px solid #fff', borderRadius: '16px', padding: '24px' }}>
-            <TemplateClockView tasks={tasks}/>
+            <TemplateClockView tasks={tasks} size={420}/>
           </div>
 
           <div style={{ backgroundColor: '#111', border: '1px solid #fff', borderRadius: '16px', padding: '24px' }}>
