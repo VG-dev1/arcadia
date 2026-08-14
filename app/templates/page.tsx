@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 interface TemplateSummary {
   id: string;
@@ -12,20 +10,85 @@ interface TemplateSummary {
   createdAt?: string;
 }
 
+interface FirestoreField {
+  stringValue?: string;
+  timestampValue?: string;
+}
+
+interface FirestoreQueryResult {
+  document?: {
+    name: string;
+    fields: Record<string, FirestoreField>;
+  };
+}
+
+const getFieldValue = (field?: FirestoreField) =>
+  field?.stringValue ?? field?.timestampValue;
+
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);
 
   useEffect(() => {
-    const templatesQuery = query(collection(db, 'templates'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(templatesQuery, (snapshot) => {
-      const nextTemplates = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<TemplateSummary, 'id'>),
-      }));
-      setTemplates(nextTemplates);
-    });
+    const controller = new AbortController();
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
-    return () => unsubscribe();
+    const loadTemplates = async () => {
+      if (!projectId || !apiKey) return;
+
+      try {
+        const response = await fetch(
+          `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              structuredQuery: {
+                from: [{ collectionId: 'templates' }],
+                select: {
+                  fields: [
+                    { fieldPath: 'name' },
+                    { fieldPath: 'authorName' },
+                    { fieldPath: 'createdAt' },
+                  ],
+                },
+                orderBy: [{ field: { fieldPath: 'createdAt' }, direction: 'DESCENDING' }],
+              },
+            }),
+          }
+        );
+
+        if (!response.ok) throw new Error(`Could not load templates (${response.status})`);
+
+        const results = await response.json() as FirestoreQueryResult[];
+        if (controller.signal.aborted) return;
+
+        setTemplates(
+          results.flatMap(({ document }) => {
+            if (!document) return [];
+
+            const id = document.name.split('/').pop();
+            const name = getFieldValue(document.fields.name);
+            if (!id || !name) return [];
+
+            return [{
+              id,
+              name,
+              authorName: getFieldValue(document.fields.authorName) ?? 'Anonymous',
+              createdAt: getFieldValue(document.fields.createdAt),
+            }];
+          })
+        );
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error loading templates:', error);
+        }
+      }
+    };
+
+    loadTemplates();
+    return () => controller.abort();
   }, []);
 
   return (
