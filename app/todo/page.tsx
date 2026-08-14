@@ -7,31 +7,6 @@ import { ProtectedRoute } from '@/lib/ProtectedRoute';
 
 type RepeatUnit = RepeatConfig['unit'];
 
-const PRESET_COLORS = [
-  "#ffffff", "#a3a3a3", "#ef4444", "#f97316",
-  "#eab308", "#22c55e", "#38bdf8", "#818cf8",
-  "#e879f9", "#f43f5e",
-];
-
-const minutesToTime = (mins: number): string => {
-  const h = Math.floor(mins / 60) % 24;
-  const m = mins % 60;
-  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-};
-
-const timeToMinutes = (time: string): number => {
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-};
-
-const formatDuration = (mins: number): string => {
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  if (h === 0) return `${m}m`;
-  if (m === 0) return `${h}h`;
-  return `${h}h ${m}m`;
-};
-
 const dateKey = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
@@ -71,9 +46,8 @@ const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
       target.getMonth() === origin.getMonth() &&
       target.getDate() === origin.getDate();
   }
-  if (unit == 'weekdays') {
-    const isWeekday = target.getDay() % 6 !== 0;
-    return isWeekday
+  if (unit === 'weekdays') {
+    return target.getDay() % 6 !== 0;
   }
   return false;
 };
@@ -82,9 +56,12 @@ const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ o
   <div
     onClick={onClose}
     style={{
-      position: "fixed", inset: 0,
+      position: "fixed",
+      inset: 0,
       backgroundColor: "rgba(0,0,0,0.75)",
-      display: "flex", alignItems: "center", justifyContent: "center",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       zIndex: 100,
     }}
   >
@@ -95,7 +72,7 @@ const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ o
         border: "1px solid #fff",
         borderRadius: "12px",
         padding: "36px",
-        minWidth: "380px",
+        minWidth: "360px",
         maxWidth: "90vw",
         color: "white",
         fontFamily: "var(--font-geist-sans), sans-serif",
@@ -134,6 +111,11 @@ const ModalInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props
 interface ManageCategoriesModalProps {
   onClose: () => void;
   onSelectCategory?: (id: string) => void;
+}
+
+interface DateSelectorProps {
+  onClose: () => void;
+  onSelectDate: (date: Date) => void;
 }
 
 const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, onSelectCategory }) => {
@@ -305,22 +287,22 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                             Edit
                           </button>
                           {cat.id !== 'general' && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(cat.id, cat.name);
-                            }}
-                            style={{
-                              display: "block", width: "100%", textAlign: "left",
-                              background: "none", border: "none", color: "#ef4444",
-                              padding: "10px 14px", cursor: "pointer", fontSize: "13px",
-                              fontFamily: "var(--font-geist-sans), sans-serif", letterSpacing: "0.5px",
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a2a2a")}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
-                            Delete
-                          </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(cat.id, cat.name);
+                              }}
+                              style={{
+                                display: "block", width: "100%", textAlign: "left",
+                                background: "none", border: "none", color: "#ef4444",
+                                padding: "10px 14px", cursor: "pointer", fontSize: "13px",
+                                fontFamily: "var(--font-geist-sans), sans-serif", letterSpacing: "0.5px",
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a2a2a")}
+                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              Delete
+                            </button>
                           )}
                         </div>
                       )}
@@ -461,23 +443,27 @@ interface TaskFormProps {
   currentKey: string;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ 
-  initial, 
-  onSave, 
-  onDelete, 
-  onClose, 
-  title, 
-  currentKey 
+const TaskForm: React.FC<TaskFormProps> = ({
+  initial,
+  onSave,
+  onDelete,
+  onClose,
+  title,
+  currentKey,
 }) => {
   const router = useRouter();
   const { categories, addCategory, updateCategory, deleteCategory } = useAuth();
-  
+
   const [name, setName] = useState(initial?.name ?? "");
-  const [startTime, setStartTime] = useState(minutesToTime(initial?.start ?? 480));
-  const [endTime, setEndTime] = useState(minutesToTime(initial?.end ?? 540));
+  const [startTime, setStartTime] = useState(initial?.start !== undefined ?
+    `${String(Math.floor(initial.start / 60)).padStart(2, '0')}:${String(initial.start % 60).padStart(2, '0')}` :
+    '08:00');
+  const [endTime, setEndTime] = useState(initial?.end !== undefined ?
+    `${String(Math.floor(initial.end / 60)).padStart(2, '0')}:${String(initial.end % 60).padStart(2, '0')}` :
+    '09:00');
   const [color, setColor] = useState(initial?.color ?? "#ffffff");
   const [useCustom, setUseCustom] = useState(
-    initial?.color ? !PRESET_COLORS.includes(initial.color) : false
+    initial?.color ? !["#ffffff", "#a3a3a3", "#ef4444", "#f97316", "#eab308", "#22c55e", "#38bdf8", "#818cf8", "#e879f9", "#f43f5e"].includes(initial.color) : false
   );
   const [repeatEnabled, setRepeatEnabled] = useState<boolean>(!!initial?.repeat);
   const [repeatCount, setRepeatCount] = useState<number>(initial?.repeat?.count ?? 1);
@@ -485,26 +471,28 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const [selectedCategoryId, setSelectedCategoryId] = useState(initial?.categoryId || 'general');
   const [showManageCategories, setShowManageCategories] = useState(false);
-  
   const colorPickerRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
     if (!name.trim()) return;
-    const start = timeToMinutes(startTime);
-    const end = timeToMinutes(endTime);
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
+    const start = startHour * 60 + startMinute;
+    const end = endHour * 60 + endMinute;
     if (end <= start) return;
+
     const repeat: RepeatConfig | undefined = repeatEnabled
       ? { count: Math.max(1, repeatCount), unit: repeatUnit }
       : undefined;
-      
-    onSave({ 
-      name: name.trim(), 
-      start, 
-      end, 
-      color, 
+
+    onSave({
+      name: name.trim(),
+      start,
+      end,
+      color,
       categoryId: selectedCategoryId,
-      repeat, 
-      repeatOrigin: initial?.repeatOrigin ?? currentKey 
+      repeat,
+      repeatOrigin: initial?.repeatOrigin ?? currentKey,
     });
     onClose();
   };
@@ -574,7 +562,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       <div style={{ marginBottom: "28px" }}>
         <ModalLabel>Colour</ModalLabel>
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
-          {PRESET_COLORS.map((c) => (
+          {["#ffffff", "#a3a3a3", "#ef4444", "#f97316", "#eab308", "#22c55e", "#38bdf8", "#818cf8", "#e879f9", "#f43f5e"].map((c) => (
             <button
               key={c}
               onClick={() => { setColor(c); setUseCustom(false); }}
@@ -635,7 +623,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           }}>
             {repeatEnabled && (
               <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-                <path d="M1 4L4 7.5L10 1" stroke="#0B0F1A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 4L4 7.5L10 1" stroke="#0B0F1A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             )}
           </div>
@@ -755,18 +743,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
               color: "black",
               padding: "10px 22px",
               borderRadius: "6px",
-              cursor:
-                !name || !selectedCategoryId || !startTime || !endTime
-                  ? "not-allowed"
-                  : "pointer",
+              cursor: !name || !selectedCategoryId || !startTime || !endTime ? "not-allowed" : "pointer",
               fontSize: "13px",
               fontWeight: "600",
               fontFamily: "var(--font-geist-sans), sans-serif",
               letterSpacing: "0.5px",
-              opacity:
-                !name || !selectedCategoryId || !startTime || !endTime
-                  ? 0.5
-                  : 1,
+              opacity: !name || !selectedCategoryId || !startTime || !endTime ? 0.5 : 1,
             }}
           >
             Save
@@ -784,64 +766,107 @@ const TaskForm: React.FC<TaskFormProps> = ({
   );
 };
 
-const ClockAppContent: React.FC = () => {
-  const [now, setNow] = useState(new Date());
+const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDate }) => {
+  const [dateInput, setDateInput] = useState(new Date().toISOString().split('T')[0]);
+
+  const handleConfirm = () => {
+    if (!dateInput) return;
+    const [year, month, day] = dateInput.split('-').map(Number);
+    onSelectDate(new Date(year, month - 1, day));
+    onClose();
+  };
+
+  return (
+    <Modal onClose={onClose}>
+      <h2 style={{ margin: "0 0 28px 0", fontSize: "18px", fontWeight: "600", letterSpacing: "0.5px" }}>
+        Jump to Date
+      </h2>
+      <div style={{ marginBottom: "24px" }}>
+        <ModalLabel>Select date</ModalLabel>
+        <ModalInput
+          type="date"
+          value={dateInput}
+          onChange={(e) => setDateInput(e.target.value)}
+          autoFocus
+        />
+      </div>
+      <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+        <button
+          onClick={onClose}
+          style={{
+            background: "none",
+            border: "1px solid #fff",
+            color: "#fff",
+            padding: "10px 18px",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "13px",
+            fontFamily: "var(--font-geist-sans), sans-serif",
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleConfirm}
+          disabled={!dateInput}
+          style={{
+            background: "white",
+            border: "none",
+            color: "black",
+            padding: "10px 22px",
+            borderRadius: "6px",
+            cursor: dateInput ? "pointer" : "not-allowed",
+            fontSize: "13px",
+            fontWeight: "600",
+            fontFamily: "var(--font-geist-sans), sans-serif",
+            letterSpacing: "0.5px",
+            opacity: dateInput ? 1 : 0.5,
+          }}
+        >
+          Confirm
+        </button>
+      </div>
+    </Modal>
+  );
+};
+
+export function ToDoPageContent() {
+  const { allTasks, addTask, updateTask, deleteTask } = useAuth();
   const [dayOffset, setDayOffset] = useState(0);
-  const [showAdd, setShowAdd] = useState(false);
   const [showDateSelect, setShowDateSelect] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [clockSize, setClockSize] = useState(520);
 
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  
-  const { allTasks, addTask, updateTask, deleteTask } = useAuth();
-  const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const updateSize = () => {
-      if (typeof window !== 'undefined') {
-        const width = window.innerWidth;
-        if (width < 640) {
-          setClockSize(width * 0.85);
-        } else if (width < 1024) {
-          setClockSize(400);
-        } else {
-          setClockSize(520);
-        }
-      }
-    };
-    updateSize();
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
-
-  const today = new Date(now);
-  const viewedDate = new Date(now);
-  viewedDate.setDate(now.getDate() + dayOffset);
+  const today = new Date();
+  const viewedDate = new Date(today);
+  viewedDate.setDate(today.getDate() + dayOffset);
   const currentKey = dateKey(viewedDate);
-  const ownTasks: Task[] = allTasks[currentKey] ?? [];
 
+  const ownTasks: Task[] = allTasks[currentKey] ?? [];
   const repeatingTasks: Task[] = Object.entries(allTasks)
     .filter(([key]) => key !== currentKey)
     .flatMap(([, dayTasks]) =>
-      dayTasks.filter(
-        (t) => t.repeat && doesTaskRepeatOnDate(t, currentKey)
-      )
+      dayTasks.filter((t) => t.repeat && doesTaskRepeatOnDate(t, currentKey))
     );
 
   const ownIds = new Set(ownTasks.map((t) => t.id));
-  const tasks: Task[] = [...ownTasks, ...repeatingTasks.filter((t) => !ownIds.has(t.id))];
-  console.log(tasks);
+  const tasks: Task[] = [...ownTasks, ...repeatingTasks.filter((t) => !ownIds.has(t.id))].sort((a, b) => a.start - b.start);
 
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const navBtnStyle: React.CSSProperties = {
+    background: "none",
+    border: "1px solid #fff",
+    color: "#fff",
+    padding: "8px 16px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontSize: "13px",
+    fontFamily: "var(--font-geist-sans), sans-serif",
+    letterSpacing: "0.5px",
+  };
+
+  const dayName = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"][viewedDate.getDay()];
+  const dateLabel = getDateLabel(viewedDate, today);
 
   const handleAddTask = async (t: Omit<Task, "id">) => {
     setIsSaving(true);
@@ -866,220 +891,79 @@ const ClockAppContent: React.FC = () => {
   };
 
   const handleDeleteTask = async (id: string) => {
-    if (confirm("Are you sure you want to delete this task?")) {
-      setIsSaving(true);
-      try {
-        const task = tasks.find((tk) => tk.id === id);
-        const targetKey = task?.repeatOrigin ?? currentKey;
-        await deleteTask(targetKey, id);
-        setEditingTask(null);
-      } catch (error) {
-        alert('Error deleting task: ' + (error as any).message);
-      }
-      setIsSaving(false);
+    if (!confirm("Are you sure you want to delete this task?")) return;
+    setIsSaving(true);
+    try {
+      const task = tasks.find((tk) => tk.id === id);
+      const targetKey = task?.repeatOrigin ?? currentKey;
+      await deleteTask(targetKey, id);
+      setEditingTask(null);
+    } catch (error) {
+      alert('Error deleting task: ' + (error as any).message);
     }
-  };
-
-  const center = clockSize / 2;
-  const radius = (clockSize / 2) * 0.73;
-  const circumference = 2 * Math.PI * radius;
-  const arcWidth = (clockSize / 520) * 34;
-
-  const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-  const dayName = days[viewedDate.getDay()];
-  const timeString = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
-  const dateLabel = getDateLabel(viewedDate, today);
-
-  const getRotation = (minutes: number) => (minutes / 1440) * 360 - 90;
-
-  const isToday = dayOffset === 0;
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const handAngle = (currentMinutes / 1440) * 360;
-
-  const handleClockClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - center;
-    const y = e.clientY - rect.top - center;
-    const dist = Math.sqrt(x * x + y * y);
-    if (dist < radius - arcWidth || dist > radius + arcWidth) return;
-
-    let angle = (Math.atan2(y, x) * 180) / Math.PI + 90;
-    if (angle < 0) angle += 360;
-    const clickedMinutes = (angle / 360) * 1440;
-
-    const hit = tasks.find((t) => {
-      if (t.end > t.start) return clickedMinutes >= t.start && clickedMinutes <= t.end;
-      return clickedMinutes >= t.start || clickedMinutes <= t.end;
-    });
-    if (hit) setEditingTask(hit);
-  };
-
-  const totalScheduled = tasks.reduce((acc, t) => acc + (t.end - t.start), 0);
-
-  const navBtnStyle: React.CSSProperties = {
-    background: "none",
-    border: "1px solid #fff",
-    color: "#fff",
-    padding: "8px 16px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "13px",
-    fontFamily: "var(--font-geist-sans), sans-serif",
-    letterSpacing: "0.5px",
+    setIsSaving(false);
   };
 
   return (
-    <div style={{
-      backgroundColor: "#0B0F1A",
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      fontFamily: "var(--font-geist-sans), sans-serif",
-      color: "white",
+    <div style={{ 
+      display: "flex", 
+      minHeight: "100vh", 
+      backgroundColor: "#0B0F1A", 
+      color: "white", 
+      fontFamily: "var(--font-geist-sans), sans-serif", 
+      padding: "32px 24px", 
+      alignItems: "flex-start", 
+      justifyContent: "center" 
     }}>
       <style>{`
-        .main-layout {
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          align-items: center;
-          padding: 40px 64px;
-          flex: 1;
+        .add-col {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+          width: fit-content;
+          margin: 24px auto 0;
         }
-        .summary-col { padding-right: 64px; order: 1; }
-        .clock-col { order: 2; display: flex; justify-content: center; }
-        .add-col { padding-left: 64px; order: 3; }
+        .add-col p {
+          font-size: 12px;
+          color: #fff;
+          line-height: 1.6;
+          margin: 0;
+          max-width: 240px;
+        }
 
         @media (max-width: 1024px) {
-          .main-layout {
-            grid-template-columns: 1fr;
-            padding: 20px;
-            text-align: center;
-            gap: 40px;
-          }
-          .summary-col { padding: 0; order: 2; }
-          .clock-col { order: 1; }
-          .add-col { padding: 0; order: 3; display: flex; flex-direction: column; align-items: center; }
           .nav-group { justify-content: center; }
         }
-      `}</style>
 
-      <div className="main-layout">
-        <div className="summary-col">
-          <div style={{ marginBottom: "40px" }}>
-            <p style={{
-              fontSize: "11px", letterSpacing: "2.5px", color: "#fff",
-              textTransform: "uppercase", margin: "0 0 10px 0",
-            }}>
+        @media (min-width: 768px) {
+          .add-col {
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+          }
+        }
+      `}</style>
+      <div style={{ width: "100%", maxWidth: "980px", margin: "0 auto" }}>
+        <div style={{ display: "grid", gap: "24px", marginBottom: "32px", justifyContent: "center" }}>
+          <div>
+            <p>Although Arcadia encourages the use of the clock wheel, we still provide a to-do list!</p>
+            <p style={{ fontSize: "11px", letterSpacing: "2.5px", color: "#fff", textTransform: "uppercase", margin: "0 0 10px 0" }}>
               {dayName}
             </p>
-            <p style={{
-              fontSize: "40px", fontWeight: "600", margin: "0 0 20px 0",
-              lineHeight: 1.1, letterSpacing: "-0.5px",
-            }}>
+            <p style={{ fontSize: "40px", fontWeight: "600", margin: "0 0 10px 0", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
               {dateLabel}
             </p>
-            <div className="nav-group" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-              <button style={navBtnStyle} onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
-              {dayOffset !== 0 && (
-                <button style={navBtnStyle} onClick={() => setDayOffset(0)}>Today</button>
-              )}
-              <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
-              <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
-            </div>
           </div>
 
-          <div style={{ height: "1px", backgroundColor: "#1a1a1a", marginBottom: "32px" }} />   
-        </div>
-
-        <div className="clock-col">
-          <svg
-            width={clockSize}
-            height={clockSize}
-            viewBox={`0 0 ${clockSize} ${clockSize}`}
-            onClick={handleClockClick}
-            style={{ cursor: "default", flexShrink: 0, display: "block" }}
-          >
-            {Array.from({ length: 288 }).map((_, i) => {
-              const mins = i * 5;
-              let length = (clockSize / 520) * 4;
-              let color = "#fff";
-              if (mins % 360 === 0) { length = (clockSize / 520) * 14; color = "white"; }
-              else if (mins % 60 === 0) { length = (clockSize / 520) * 10; color = "#fff"; }
-              else if (mins % 20 === 0) { length = (clockSize / 520) * 6; color = "#fff"; }
-              return (
-                <line
-                  key={mins}
-                  x1={center} y1={center - radius - ((clockSize / 520) * 12)}
-                  x2={center} y2={center - radius - ((clockSize / 520) * 12) - length}
-                  stroke={color}
-                  strokeWidth="1"
-                  transform={`rotate(${(mins / 1440) * 360} ${center} ${center})`}
-                />
-              );
-            })}
-
-            {[0, 6, 12, 18].map((h) => {
-              const angle = (h / 24) * 360 - 90;
-              const labelR = radius + ((clockSize / 520) * 36);
-              const lx = center + labelR * Math.cos((angle * Math.PI) / 180);
-              const ly = center + labelR * Math.sin((angle * Math.PI) / 180);
-              return (
-                <text key={h} x={lx} y={ly} fill="#fff" fontSize={`${(clockSize / 520) * 12}px`}
-                  textAnchor="middle" dominantBaseline="central">
-                  {h === 0 ? "00:00" : `${h}:00`}
-                </text>
-              );
-            })}
-
-            {tasks.map((task) => {
-              const duration = task.end - task.start;
-              const strokeLength = (duration / 1440) * circumference;
-              const rotDeg = getRotation(task.start);
-              const startOffset = ((rotDeg + 90) / 360) * circumference;
-              const textOffset = startOffset + strokeLength / 2;
-
-              return (
-                <g key={task.id} style={{ cursor: "pointer" }}>
-                  <circle
-                    cx={center} cy={center} r={radius}
-                    fill="none"
-                    stroke={task.color}
-                    strokeWidth={arcWidth}
-                    strokeOpacity="0.35"
-                    strokeDasharray={`${strokeLength} ${circumference}`}
-                    transform={`rotate(${rotDeg} ${center} ${center})`}
-                  />
-                  <path
-                    id={`path-${task.id}`}
-                    d={`M ${center},${center - radius} a ${radius},${radius} 0 1,1 0,${2 * radius} a ${radius},${radius} 0 1,1 0,-${2 * radius}`}
-                    fill="none"
-                  />
-                  <text fill={task.color} fontSize={`${(clockSize / 520) * 11}px`} fontWeight="600" opacity="0.9">
-                    <textPath href={`#path-${task.id}`} startOffset={textOffset} textAnchor="middle" dominantBaseline="central">
-                      {task.name}
-                    </textPath>
-                  </text>
-                </g>
-              );
-            })}
-
-            {isToday && (
-              <circle
-                cx={center + radius * Math.sin((handAngle * Math.PI) / 180)}
-                cy={center - radius * Math.cos((handAngle * Math.PI) / 180)}
-                r={(clockSize / 520) * 5} fill="white" opacity="0.7"
-              />
+          <div className="nav-group" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+            <button style={navBtnStyle} onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
+            {dayOffset !== 0 && (
+              <button style={navBtnStyle} onClick={() => setDayOffset(0)}>Today</button>
             )}
-
-            <text x={center} y={center - ((clockSize / 520) * 16)} fill="white" fontSize={`${(clockSize / 520) * 52}px`} fontWeight="600"
-              textAnchor="middle" dominantBaseline="central" letterSpacing="-1">
-              {isToday ? timeString : dayName}
-            </text>
-            <text x={center} y={center + ((clockSize / 520) * 32)} fill="#fff" fontSize={`${(clockSize / 520) * 16}px`}
-              textAnchor="middle" letterSpacing="4px" fontWeight="600">
-              {isToday ? dayName : viewedDate.toLocaleDateString(undefined, { month: "short", day: "numeric" }).toUpperCase()}
-            </text>
-          </svg>
+            <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
+            <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
+          </div>
         </div>
 
         <div className="add-col">
@@ -1087,20 +971,73 @@ const ClockAppContent: React.FC = () => {
             onClick={() => setShowAdd(true)}
             disabled={isSaving}
             style={{
-              backgroundColor: "white", color: "black", border: "none",
-              padding: "12px 28px", borderRadius: "6px", fontSize: "13px",
-              fontWeight: "600", fontFamily: "var(--font-geist-sans), sans-serif",
-              letterSpacing: "1px", cursor: isSaving ? "wait" : "pointer", textTransform: "uppercase",
-              display: "block", marginBottom: "16px", opacity: isSaving ? 0.6 : 1,
+              backgroundColor: "white",
+              color: "black",
+              border: "none",
+              padding: "12px 28px",
+              borderRadius: "6px",
+              fontSize: "13px",
+              fontWeight: "600",
+              fontFamily: "var(--font-geist-sans), sans-serif",
+              letterSpacing: "1px",
+              cursor: isSaving ? "wait" : "pointer",
+              textTransform: "uppercase",
+              opacity: isSaving ? 0.6 : 1,
             }}
           >
             {isSaving ? "SAVING..." : "+ Add Task"}
           </button>
-          <p style={{ fontSize: "12px", color: "#fff", lineHeight: "1.6", maxWidth: "200px", margin: 0 }}>
-            Click an arc on the clock to edit or delete a task.
+          <p>
+            Click an item on the to-do list to edit or delete a task.
           </p>
         </div>
+
+        <div style={{ paddingTop: "32px" }}>
+          {tasks.length === 0 ? (
+            <p style={{ color: "#fff", fontSize: "14px", lineHeight: "1.6" }}>No tasks yet.</p>
+          ) : (
+            <div style={{ display: "grid", gap: "14px" }}>
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  onClick={() => setEditingTask(task)}
+                  style={{
+                    padding: "16px",
+                    border: "1px solid #1a1a1a",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ width: "4px", minHeight: "32px", backgroundColor: task.color, borderRadius: "2px", opacity: 0.8 }} />
+                  <div style={{ flex: 1 }}>
+                    <p style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: "600", color: "#fff" }}>
+                      {task.name} • {task.categoryId} {task.repeat ? <span style={{ fontSize: "10px", letterSpacing: "1px", opacity: 0.5, marginLeft: "8px", fontWeight: "400" }}>↻ REPEATING</span> : null}
+                    </p>
+                    <p style={{ margin: 0, fontSize: "12px", color: "#fff", letterSpacing: "0.5px" }}>
+                      {`${String(Math.floor(task.start / 60)).padStart(2, '0')}:${String(task.start % 60).padStart(2, '0')} – ${String(Math.floor(task.end / 60)).padStart(2, '0')}:${String(task.end % 60).padStart(2, '0')}`}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {showDateSelect && (
+        <DateSelector
+          onClose={() => setShowDateSelect(false)}
+          onSelectDate={(date) => {
+            const selected = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const base = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const diffTime = selected.getTime() - base.getTime();
+            setDayOffset(Math.round(diffTime / (1000 * 60 * 60 * 24)));
+          }}
+        />
+      )}
 
       {showAdd && (
         <TaskForm
@@ -1121,93 +1058,14 @@ const ClockAppContent: React.FC = () => {
           currentKey={currentKey}
         />
       )}
-
-      {showDateSelect && (
-        <DateSelector
-          onClose={() => setShowDateSelect(false)}
-          onSelectDate={(date) => {
-            const selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-            const diffTime = selectedDate.getTime() - todayDate.getTime();
-            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-            setDayOffset(diffDays);
-          }}
-        />
-      )}
     </div>
   );
-};
-
-interface DateSelectorProps {
-  onClose: () => void;
-  onSelectDate: (date: Date) => void;
 }
 
-const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDate }) => {
-  const [dateInput, setDateInput] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-
-  const handleConfirm = () => {
-    if (dateInput) {
-      const [year, month, day] = dateInput.split("-").map(Number);
-      const date = new Date(year, month - 1, day);
-      onSelectDate(date);
-      onClose();
-    }
-  };
-
-  return (
-    <Modal onClose={onClose}>
-      <h2 style={{ margin: "0 0 28px 0", fontSize: "18px", fontWeight: "600", letterSpacing: "0.5px" }}>
-        Jump to Date
-      </h2>
-
-      <div style={{ marginBottom: "24px" }}>
-        <ModalLabel>Select date</ModalLabel>
-        <ModalInput
-          type="date"
-          value={dateInput}
-          onChange={(e) => setDateInput(e.target.value)}
-          autoFocus
-        />
-      </div>
-
-      <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
-        <button
-          onClick={onClose}
-          style={{
-            background: "none", border: "1px solid #fff",
-            color: "#fff", padding: "10px 18px",
-            borderRadius: "6px", cursor: "pointer",
-            fontSize: "13px", fontFamily: "var(--font-geist-sans), sans-serif",
-          }}
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleConfirm}
-          disabled={!dateInput}
-          style={{
-            background: "white", border: "none",
-            color: "black", padding: "10px 22px",
-            borderRadius: "6px", cursor: "pointer",
-            fontSize: "13px", fontWeight: "600",
-            fontFamily: "var(--font-geist-sans), sans-serif",
-            letterSpacing: "0.5px",
-          }}
-        >
-          Confirm
-        </button>
-      </div>
-    </Modal>
-  );
-};
-
-export default function ClockApp() {
+export default function InsightsPage() {
   return (
     <ProtectedRoute>
-      <ClockAppContent />
+      <ToDoPageContent />
     </ProtectedRoute>
   );
 }

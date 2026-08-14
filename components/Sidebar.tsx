@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
-const SIDEBAR_ROUTES = ["/dashboard", "/insights"];
+const SIDEBAR_ROUTES = ["/dashboard", "/insights", "/todo"];
 
 const NAV_ITEMS = [
   {
@@ -36,6 +36,46 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    label: "Todo List",
+    path: "/todo",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path 
+          d="M2.5 5.5L4 7L7.5 3.5" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        />
+        <line 
+          x1="10" 
+          y1="5" 
+          x2="16" 
+          y2="5" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round"
+        />
+        <path 
+          d="M2.5 12.5L4 14L7.5 10.5" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        />
+        <line 
+          x1="10" 
+          y1="12" 
+          x2="16" 
+          y2="12" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+  }
 ];
 
 export function Sidebar() {

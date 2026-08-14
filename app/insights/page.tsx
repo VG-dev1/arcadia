@@ -249,6 +249,18 @@ export function InsightsPageContent() {
         };
     }, [monthlyTasks, categories, hoursInMonth]);
 
+    const navBtnStyle: React.CSSProperties = {
+      background: "none",
+      border: "1px solid #fff",
+      color: "#fff",
+      padding: "8px 16px",
+      borderRadius: "6px",
+      cursor: "pointer",
+      fontSize: "13px",
+      fontFamily: "var(--font-geist-sans), sans-serif",
+      letterSpacing: "0.5px",
+    };
+
     return (
         <div style={{
             backgroundColor: "#0B0F1A",
@@ -276,31 +288,13 @@ export function InsightsPageContent() {
                         <div style={{ display: "flex", gap: "6px" }}>
                             <button 
                                 onClick={() => handleNavigateMonth('prev')}
-                                style={{
-                                    backgroundColor: "#1e2638",
-                                    color: "#fff",
-                                    border: "none",
-                                    borderRadius: "20px",
-                                    padding: "8px 18px",
-                                    fontSize: "13px",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                }}
+                                style={navBtnStyle}
                             >
                                 Prev
                             </button>
                             <button 
                                 onClick={() => handleNavigateMonth('next')}
-                                style={{
-                                    backgroundColor: "#fff",
-                                    color: "#000",
-                                    border: "none",
-                                    borderRadius: "20px",
-                                    padding: "8px 18px",
-                                    fontSize: "13px",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                }}
+                                style={navBtnStyle}
                             >
                                 Next
                             </button>
