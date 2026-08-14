@@ -13,6 +13,6 @@ export default function robots(): MetadataRoute.Robots {
         '/auth',
       ],
     },
-    sitemap: 'https://app-arcadia.vercel.app',
+    sitemap: 'https://app-arcadia.vercel.app/sitemap.xml',
   }
 }
