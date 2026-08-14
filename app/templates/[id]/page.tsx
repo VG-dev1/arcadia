@@ -67,8 +67,6 @@ export default function SharedTemplatePage() {
 
   const tasks = template.tasks || [];
 
-  
-
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0B0F1A', color: 'white', fontFamily: 'var(--font-geist-sans), sans-serif', padding: '40px 24px' }}>
       <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
@@ -81,7 +79,14 @@ export default function SharedTemplatePage() {
               <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 600, letterSpacing: '-0.5px' }}>{template.name}</h1>
               <p style={{ margin: '8px 0 0 0', color: '#9ca3af' }}>by {template.authorName || 'Anonymous'}</p>
             </div>
-            <Link href="/templates" style={navBtnStyle}>← Back to templates</Link>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <Link href="/dashboard" style={navBtnStyle} onClick={() => localStorage.setItem("template", JSON.stringify(template))}>
+                Use Template
+              </Link>
+              <Link href="/templates" style={navBtnStyle}>
+                ← Back to templates
+              </Link>
+            </div>
           </div>
         </div>
 

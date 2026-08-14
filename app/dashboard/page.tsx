@@ -984,6 +984,10 @@ const ClockAppContent: React.FC = () => {
     letterSpacing: "0.5px",
   };
 
+
+  const currentTime = (now.getHours() * 60) + now.getMinutes();
+  const currentTask = tasks.find((task) => {return task.start <= currentTime && currentTime <= currentTime});
+
   return (
     <div style={{
       backgroundColor: "#0B0F1A",
@@ -1045,7 +1049,7 @@ const ClockAppContent: React.FC = () => {
 
             </div>
           </div>
-
+          <p>{currentTask?.name ? `Current task: ${currentTask?.name}` : "All clear! Sit back and relax!"}</p>
           <div style={{ height: "1px", backgroundColor: "#1a1a1a", marginBottom: "32px" }} />   
         </div>
 
