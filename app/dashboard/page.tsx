@@ -6,7 +6,8 @@ import { useAuth, type RepeatConfig, type Task, type TaskStatus } from '@/lib/Au
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
 import { TaskStatusMenu } from '@/app/todo/page';
 import { db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
+import { setupDevBundler } from 'next/dist/server/lib/router-utils/setup-dev-bundler';
 
 type RepeatUnit = RepeatConfig['unit'];
 
@@ -15,6 +16,22 @@ interface SharedTemplate {
   name: string;
   authorName: string;
   tasks: Task[];
+}
+
+interface TemplateTask {
+  id: string;
+  name: string;
+  start: number;
+  end: number;
+  color: string;
+  categoryId?: string;
+  repeat?: RepeatConfig;
+  repeatOrigin?: string;
+}
+
+interface TemplateSnapshot {
+  name: string;
+  tasks: TemplateTask[];
 }
 
 const PRESET_COLORS = [
@@ -850,6 +867,9 @@ const ClockAppContent: React.FC = () => {
   const [statusContext, setStatusContext] = useState<{ task: Task; top: number; left: number } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [clockSize, setClockSize] = useState(520);
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const [showUpdateButton, setShowUpdateButton] = useState(false);
+  const [showDeleteTemplateButton, setShowDeleteTemplateButton] = useState(false);
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -983,6 +1003,117 @@ const ClockAppContent: React.FC = () => {
     } finally {
       setIsSharing(false);
     }
+  };
+
+  const handleUpdateTemplate = async (): Promise<boolean> => {
+    if (!templateId) return false;
+
+    setIsSharing(true);
+    setShareError('');
+
+    try {
+      const templatePayload = sanitizeForFirestore({
+        id: templateId,
+        ...(shareTemplateName.trim() && { name: shareTemplateName.trim() }),
+        authorName: userProfile?.username || userProfile?.email?.split('@')[0] || 'Anonymous',
+        authorId: user?.uid,
+        dateKey: currentKey,
+        tasks: tasks.map((task) => ({ ...task })),
+        updatedAt: new Date().toISOString(),
+      });
+
+      await setDoc(
+        doc(db, 'templates', templateId),
+        templatePayload as Record<string, unknown>,
+        { merge: true }
+      );
+
+      setShowUpdateButton(false);
+      return true;
+    } catch (error) {
+      console.error('Error updating template:', error);
+      setShareError('Could not update the template right now.');
+      return false;
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleDeleteTemplate = async(): Promise<boolean> => {
+    if (!templateId) return false;
+
+    setIsSharing(true);
+    setShareError('');
+
+    try {
+      await deleteDoc(doc(db, 'templates', templateId));
+
+      setShowDeleteTemplateButton(false);
+      return true;
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      setShareError('Could not delete the template right now');
+      return false;
+    } finally {
+      setIsSharing(false);
+    }
+
+  }
+
+  const checkExistingTemplate = async () => {
+    setTemplateId(null);
+    setShowUpdateButton(false);
+    setShowDeleteTemplateButton(false);
+    setShareLink('');
+
+    if (!user) return false;
+
+    const templatesQuery = query(
+      collection(db, 'templates'),
+      where('authorId', '==', user.uid),
+      where('dateKey', '==', currentKey)
+    );
+
+    const snapshot = await getDocs(templatesQuery);
+
+    if (!snapshot.empty) {
+      const existing = snapshot.docs[0];
+      const templateData = existing.data() as TemplateSnapshot;
+
+      if (!templateData.name?.trim()) {
+        return false;
+      }
+
+      setTemplateId(existing.id);
+
+      const hasChanges = compareTemplates(templateData as TemplateSnapshot, tasks);
+      setShowUpdateButton(hasChanges);
+
+      setShowDeleteTemplateButton(true);
+
+      setShareLink(`/templates/${existing.id}`);
+      return true;
+    }
+
+    return false;
+  };
+
+  const compareTemplates = (publicTemplate: TemplateSnapshot, tasks: Task[]) => {
+    const normalizeTasks = (sourceTasks: Array<TemplateTask | Task>) =>
+      sourceTasks
+        .map(({ id, name, start, end, color, categoryId, repeat, repeatOrigin }) => ({
+          id,
+          name,
+          start,
+          end,
+          color,
+          ...(categoryId !== undefined && { categoryId }),
+          ...(repeat !== undefined && { repeat }),
+          ...(repeatOrigin !== undefined && { repeatOrigin }),
+        }))
+        .sort((a, b) => a.id.localeCompare(b.id));
+
+    return JSON.stringify(normalizeTasks(publicTemplate.tasks)) !== JSON.stringify(normalizeTasks(tasks));
   };
 
   const closeTemplateImport = () => {
@@ -1137,8 +1268,7 @@ const ClockAppContent: React.FC = () => {
               )}
               <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
               <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
-              <button style={navBtnStyle} onClick={() => { setShareError(''); setShareLink(''); setShowShareModal(true); }}>Share</button>
-
+              <button style={navBtnStyle} onClick={async () => { setShareError(''); if (!await checkExistingTemplate()) setShareLink(''); setShowShareModal(true); }}>Share</button>
             </div>
           </div>
           <p>{currentTask?.name ? `Current task: ${currentTask?.name}` : "All clear! Sit back and relax!"}</p>
@@ -1322,6 +1452,38 @@ const ClockAppContent: React.FC = () => {
                 {shareLink}
               </a>
               <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                {showDeleteTemplateButton && (
+                  <button
+                    onClick={async () => {
+                      if (confirm("Are you sure you want to delete this public template? It will no longer be on the Marketplace.")) {
+                        if (!await handleDeleteTemplate()) return;                   
+                        setShowShareModal(false);
+                        setShareError('');
+                        setShareLink('');
+                        setShareTemplateName('');
+                      }
+                    }}
+                    disabled={isSharing}
+                    style={{ background: "none", border: "1px solid #3a1a1a", color: "#ef4444", padding: "10px 18px", borderRadius: "6px", cursor: isSharing ? "not-allowed" : "pointer", opacity: isSharing ? 0.5 : 1 }}
+                    >
+                      Delete template
+                  </button>
+                )}
+                {showUpdateButton && (
+                  <button
+                    onClick={async () => {
+                      if (!await handleUpdateTemplate()) return;
+                      setShowShareModal(false);
+                      setShareError('');
+                      setShareLink('');
+                      setShareTemplateName('');
+                    }}
+                    disabled={isSharing}
+                    style={{ background: "none", border: "1px solid #fff", color: "#fff", padding: "10px 18px", borderRadius: "6px", cursor: isSharing ? "not-allowed" : "pointer", opacity: isSharing ? 0.5 : 1 }}
+                  >
+                    {isSharing ? 'Updating...' : 'Update template'}
+                  </button>
+                )}
                 <button
                   onClick={() => { setShowShareModal(false); setShareError(''); setShareLink(''); setShareTemplateName(''); }}
                   style={{ background: "none", border: "1px solid #fff", color: "#fff", padding: "10px 18px", borderRadius: "6px", cursor: "pointer" }}

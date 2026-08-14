@@ -2,17 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { TemplateClockView } from '@/components/TemplateClockView';
+import type { Task, TaskStatus } from '@/lib/AuthContext';
+import { FieldPath } from 'firebase/firestore';
 
 interface TemplateSummary {
   id: string;
   name: string;
   authorName: string;
+  tasks: Task[];
   createdAt?: string;
 }
 
 interface FirestoreField {
   stringValue?: string;
   timestampValue?: string;
+  integerValue?: string;
+  arrayValue?: {
+    values?: FirestoreField[];
+  };
+  mapValue?: {
+    fields?: Record<string, FirestoreField>;
+  };
 }
 
 interface FirestoreQueryResult {
@@ -24,6 +35,25 @@ interface FirestoreQueryResult {
 
 const getFieldValue = (field?: FirestoreField) =>
   field?.stringValue ?? field?.timestampValue;
+
+const getTasks = (field?: FirestoreField): Task[] => {
+  return (
+    field?.arrayValue?.values?.map((item) => {
+      const fields = item.mapValue?.fields;
+
+      return {
+        id: fields?.id?.stringValue ?? '',
+        name: fields?.name?.stringValue ?? '',
+        start: Number(fields?.start?.integerValue ?? 0),
+        end: Number(fields?.end?.integerValue ?? 0),
+        color: fields?.color?.stringValue ?? '#fff',
+        categoryId: fields?.categoryId?.stringValue ?? 'general',
+        status: (fields?.status?.stringValue ?? 'to-do') as TaskStatus,
+        overTime: Number(fields?.overTime?.integerValue ?? 0),
+      };
+    }) ?? []
+  );
+};
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);
@@ -50,6 +80,7 @@ export default function TemplatesPage() {
                   fields: [
                     { fieldPath: 'name' },
                     { fieldPath: 'authorName' },
+                    { fieldPath: 'tasks' },
                     { fieldPath: 'createdAt' },
                   ],
                 },
@@ -76,6 +107,7 @@ export default function TemplatesPage() {
               id,
               name,
               authorName: getFieldValue(document.fields.authorName) ?? 'Anonymous',
+              tasks: getTasks(document.fields.tasks),
               createdAt: getFieldValue(document.fields.createdAt),
             }];
           })
@@ -111,8 +143,9 @@ export default function TemplatesPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
             {templates.map((template) => (
               <Link key={template.id} href={`/templates/${template.id}`} style={{ textDecoration: 'none' }}>
-                <div style={{ backgroundColor: '#111', border: '1px solid #fff', borderRadius: '12px', padding: '24px', minHeight: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', transition: 'transform 0.2s ease', cursor: 'pointer' }}>
+                <div style={{ backgroundColor: '#111', border: '1px solid #fff', borderRadius: '12px', padding: '24px', minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', transition: 'transform 0.2s ease', cursor: 'pointer' }}>
                   <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#fff' }}>{template.name}</p>
+                  <TemplateClockView tasks={template.tasks}></TemplateClockView>
                 </div>
               </Link>
             ))}

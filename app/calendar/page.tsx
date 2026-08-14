@@ -208,6 +208,22 @@ export function CalendarPageContent() {
         )}
         <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
         <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
+        <div style={{
+          display: "flex",
+          border: "1px solid #555",
+          borderRadius: "8px",
+          overflow: "hidden"
+        }}>
+          <button style={{ ...navBtnStyle, borderRight: "1px solid #fff" }}>
+            Weekly
+          </button>
+          <button style={{ ...navBtnStyle, borderRight: "1px solid #fff" }}>
+            Monthly
+          </button>
+          <button style={navBtnStyle}>
+            Yearly
+          </button>
+        </div>
       </div>
 
       <div className="add-col">
