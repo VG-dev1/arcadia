@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth, type Task, type TaskStatus } from '@/lib/AuthContext';
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
-import { DateSelector, TaskForm, TaskStatusMenu } from '@/app/todo/page';
+import { DateSelector, TaskForm } from '@/app/todo/page';
 
 const dateKey = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -42,7 +42,7 @@ export function CalendarPageContent() {
   const [showAdd, setShowAdd] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [statusContext, setStatusContext] = useState<{ task: Task; top: number; left: number } | null>(null);
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
 
   const today = new Date();
 
@@ -59,8 +59,6 @@ export function CalendarPageContent() {
     return date;
   });
 
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-
   const tasksForDate = (date: Date): Task[] => {
     const currentKey = dateKey(date);
     const ownTasks = allTasks[currentKey] ?? [];
@@ -69,36 +67,6 @@ export function CalendarPageContent() {
       .flatMap(([, dayTasks]) => dayTasks.filter((task) => task.repeat && doesTaskRepeatOnDate(task, currentKey)));
     const ownIds = new Set(ownTasks.map((task) => task.id));
     return [...ownTasks, ...repeatingTasks.filter((task) => !ownIds.has(task.id))].sort((a, b) => a.start - b.start);
-  };
-
-  const getHeatmapColor = (count: number): string => {
-    if (count === 0) return '#131828';
-    if (count <= 2) return '#1E293B';
-    if (count <= 5) return '#1E3A8A';
-    if (count <= 8) return '#0369A1';
-    if (count <= 12) return '#0D9488';
-    return '#38BDF8';
-  };
-
-  const taskHeatmapForDate = (date: Date): string => {
-    const currentKey = dateKey(date);
-    const ownTasks = allTasks[currentKey] ?? [];
-    const ownIds = new Set(ownTasks.map((task) => task.id));
-
-    let count = ownTasks.length;
-
-    for (const [key, dayTasks] of Object.entries(allTasks)) {
-      if (key === currentKey) continue;
-
-      for (const task of dayTasks) {
-        if (task.repeat && !ownIds.has(task.id) && doesTaskRepeatOnDate(task, currentKey)) {
-          count++;
-          ownIds.add(task.id);
-        }
-      }
-    }
-
-    return getHeatmapColor(count);
   };
 
   const handleAddTask = async (task: Omit<Task, "id">) => {
@@ -139,20 +107,23 @@ export function CalendarPageContent() {
     setIsSaving(false);
   };
 
-  const handleStatusUpdate = async (status: TaskStatus, overTime: number) => {
-    if (!statusContext) return;
+  const handleStatusUpdate = async (task: Task, targetColumnStatus: TaskStatus) => {
     setIsSaving(true);
     try {
-      const targetKey = statusContext.task.repeatOrigin ?? dateKey(viewedDate);
-      if (status === 'completed-late' && overTime > 0) {
+      const targetKey = task.repeatOrigin ?? dateKey(viewedDate);
+      const currentTime = new Date().getHours() * 60 + new Date().getMinutes();
+      const isLate = targetColumnStatus === 'completed' && currentTime > task.end;
+      const overTime = isLate ? currentTime - task.end : 0;
+      const nextStatus = isLate ? 'completed-late' : targetColumnStatus;
+
+      if (isLate) {
         alert(`Notice: You are completing this task ${overTime} minute(s) past its scheduled end time.`);
       }
-      await updateTaskStatus(targetKey, statusContext.task.id, status, overTime);
+      await updateTaskStatus(targetKey, task.id, nextStatus, overTime);
     } catch (error) {
       alert('Error updating task status: ' + (error as Error).message);
     } finally {
       setIsSaving(false);
-      setStatusContext(null);
     }
   };
 
@@ -168,11 +139,20 @@ export function CalendarPageContent() {
     letterSpacing: "0.5px",
   };
 
+  const columns: { label: string; status: TaskStatus }[] = [
+    { label: "To-do", status: "to-do" },
+    { label: "In Progress", status: "in-progress" },
+    { label: "Completed", status: "completed" },
+  ];
+
+  const currentDayTasks = tasksForDate(viewedDate);
+
   return (
     <div style={{ 
       backgroundColor: "#0B0F1A", 
       color: "white", 
-      fontFamily: "var(--font-geist-sans), sans-serif"
+      fontFamily: "var(--font-geist-sans), sans-serif",
+      minHeight: "100vh"
     }}>
       <style>{`
         .add-col {
@@ -204,7 +184,7 @@ export function CalendarPageContent() {
       <div className="nav-group" style={{ display: "flex", gap: "8px", alignItems: "center", justifyContent: "center", flexWrap: "wrap", marginTop: "10px" }}>
         <button style={navBtnStyle} onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
         {dayOffset !== 0 && (
-        <button style={navBtnStyle} onClick={() => setDayOffset(0)}>Today</button>
+          <button style={navBtnStyle} onClick={() => setDayOffset(0)}>Today</button>
         )}
         <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
         <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
@@ -229,133 +209,92 @@ export function CalendarPageContent() {
             opacity: isSaving ? 0.6 : 1,
           }}
         >
-            {isSaving ? "SAVING..." : "+ Add Task"}
-          </button>
-          <p>
-            Click an item on the calendar to edit or delete a task, or right click to change the status of it.
-          </p>
-        </div>
+          {isSaving ? "SAVING..." : "+ Add Task"}
+        </button>
+        <p>
+          Click an item to edit or delete a task, or drag and drop between cards to change its status.
+        </p>
+      </div>
 
-      <h2 style={{ margin: "10px 0 16px 16px", fontSize: 20, fontWeight: 600, marginTop: "10px" }}>
-        Week of {startOfWeek.toLocaleDateString()}
+      <h2 style={{ margin: "20px 0 16px 16px", fontSize: 20, fontWeight: 600 }}>
+        Tasks for {viewedDate.toLocaleDateString()}
       </h2>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "80px repeat(7, minmax(120px, 1fr))",
-          border: "1px solid #ddd",
-          overflowX: "auto",
-          margin: "0 0 16px 6px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "16px",
+          padding: "0 16px 16px 16px",
         }}
       >
-        <div
-          style={{
-            borderRight: "1px solid #ddd",
-            borderBottom: "1px solid #ddd",
-            background: "#0B0E1A",
-          }}
-        />
-
-        {dates.map((date, i) => {
-          const isViewed = date.toDateString() === viewedDate.toDateString();
+        {columns.map((col) => {
+          const colTasks = currentDayTasks.filter((t) => {
+            const status = t.status || "to-do";
+            if (col.status === "completed") {
+              return status === "completed" || status === "completed-late";
+            }
+            if (col.status === "to-do") {
+              return status === "to-do";
+            }
+            return status === col.status;
+          });
 
           return (
             <div
-              key={i}
+              key={col.status}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault();
+                if (!draggedTaskId) return;
+                const task = currentDayTasks.find((t) => t.id === draggedTaskId);
+                if (task) {
+                  handleStatusUpdate(task, col.status);
+                }
+                setDraggedTaskId(null);
+              }}
               style={{
-                minHeight: 40,
-                padding: 8,
-                textAlign: "center",
-                fontWeight: 600,
-                borderRight: "1px solid #ddd",
-                borderBottom: "1px solid #ddd",
-                background: taskHeatmapForDate(date),
+                background: "#0B0E1A",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "16px",
+                minHeight: "400px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
               }}
             >
-              <div>{days[i]}</div>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: isViewed ? "#818cf8" : "#777",
-                  marginTop: 4,
-                }}
-              >
-                {date.getDate()}/{date.getMonth() + 1}
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 600, borderBottom: "1px solid #333", paddingBottom: "8px" }}>
+                {col.label} ({colTasks.length})
+              </h3>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", flexGrow: 1 }}>
+                {colTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    draggable
+                    onDragStart={() => setDraggedTaskId(task.id)}
+                    onClick={() => setEditingTask(task)}
+                    style={{
+                      padding: "10px 12px",
+                      borderLeft: `4px solid ${task.color}`,
+                      borderRadius: "4px",
+                      background: "#1a1a1a",
+                      color: "white",
+                      cursor: "grab",
+                      fontFamily: "var(--font-geist-sans), sans-serif",
+                    }}
+                  >
+                    <span style={{ display: "block", fontSize: 13, fontWeight: 600 }}>{task.name}</span>
+                    <span style={{ display: "block", fontSize: 11, opacity: 0.7, marginTop: 4 }}>
+                      {Math.round(((task.end - task.start) / 60) * 10) / 10}h{task.repeat ? " · ↻" : ""}{task.status === "completed-late" ? " · Late" : ""}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           );
         })}
-
-        {hours.map((hour) => (
-          <React.Fragment key={hour}>
-            <div
-              style={{
-                height: 60,
-                padding: 8,
-                textAlign: "right",
-                fontSize: 12,
-                color: "#777",
-                background: "#0B0E1A",
-                borderRight: "1px solid #ddd",
-                borderBottom: "1px solid #ddd",
-                boxSizing: "border-box",
-              }}
-            >
-              {hour}:00
-            </div>
-
-            {dates.map((date, day) => (
-              <div
-                key={day}
-                style={{
-                  position: "relative",
-                  height: 60,
-                  borderRight: "1px solid #ddd",
-                  borderBottom: "1px solid #ddd",
-                  boxSizing: "border-box",
-                }}
-              >
-                {tasksForDate(date)
-                  .filter((task) => Math.floor(task.start / 60) === hour)
-                  .map((task) => (
-                    <button
-                      key={task.id}
-                      onClick={() => setEditingTask(task)}
-                      onContextMenu={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        setStatusContext({ task, top: event.clientY, left: event.clientX });
-                      }}
-                      style={{
-                        position: "absolute",
-                        top: task.start % 60,
-                        left: 4,
-                        right: 4,
-                        height: task.end - task.start,
-                        zIndex: 2,
-                        overflow: "hidden",
-                        textAlign: "left",
-                        padding: "6px 8px",
-                        border: "none",
-                        borderLeft: `4px solid ${task.color}`,
-                        borderRadius: "4px",
-                        background: "#1a1a1a",
-                        color: "white",
-                        cursor: "pointer",
-                        fontFamily: "var(--font-geist-sans), sans-serif",
-                      }}
-                    >
-                      <span style={{ display: "block", fontSize: 12, fontWeight: 600 }}>{task.status.includes("completed") ? <span style={{ textDecoration: "line-through" }}>{task.name}</span> : task.name}</span>
-                      <span style={{ display: "block", fontSize: 10, opacity: 0.7 }}>
-                        {Math.round((task.end - task.start) / 60 * 10) / 10}h{task.repeat ? " · ↻" : ""}
-                      </span>
-                    </button>
-                  ))}
-              </div>
-            ))}
-          </React.Fragment>
-        ))}
       </div>
 
       {showDateSelect && (
@@ -386,17 +325,6 @@ export function CalendarPageContent() {
           onDelete={() => handleDeleteTask(editingTask.id)}
           onClose={() => setEditingTask(null)}
           currentKey={dateKey(viewedDate)}
-        />
-      )}
-
-      {statusContext && (
-        <TaskStatusMenu
-          taskEnd={statusContext.task.end}
-          taskCurrentStatus={statusContext.task.status}
-          currentTime={new Date().getHours() * 60 + new Date().getMinutes()}
-          position={{ top: statusContext.top, left: statusContext.left }}
-          onSelect={handleStatusUpdate}
-          onClose={() => setStatusContext(null)}
         />
       )}
     </div>

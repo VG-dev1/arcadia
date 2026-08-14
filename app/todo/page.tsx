@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, type RepeatConfig, type Task } from '@/lib/AuthContext';
+import { useAuth, type RepeatConfig, type Task, type TaskStatus } from '@/lib/AuthContext';
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
 
 type RepeatUnit = RepeatConfig['unit'];
@@ -493,6 +493,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       categoryId: selectedCategoryId,
       repeat,
       repeatOrigin: initial?.repeatOrigin ?? currentKey,
+      status: initial?.status ?? "to-do",
+      overTime: initial?.overTime ?? 0
     });
     onClose();
   };
@@ -830,13 +832,92 @@ export const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDat
   );
 };
 
+interface TaskStatusMenuProps {
+  taskEnd: number;
+  taskCurrentStatus: string;
+  currentTime: number;
+  onSelect: (status: TaskStatus, overTime: number) => void;
+  onClose: () => void;
+  position?: { top: number; left: number };
+}
+
+export const TaskStatusMenu: React.FC<TaskStatusMenuProps> = ({ taskEnd, taskCurrentStatus, currentTime, onSelect, onClose, position }) => {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const closeWhenOutside = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) onClose();
+    };
+    const closeOnContextMenuOutside = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) onClose();
+    };
+
+    document.addEventListener('mousedown', closeWhenOutside);
+    document.addEventListener('contextmenu', closeOnContextMenuOutside);
+    return () => {
+      document.removeEventListener('mousedown', closeWhenOutside);
+      document.removeEventListener('contextmenu', closeOnContextMenuOutside);
+    };
+  }, [onClose]);
+
+  const choose = (status: TaskStatus) => {
+    const isLate = status === 'completed' && currentTime > taskEnd;
+    onSelect(isLate ? 'completed-late' : status, isLate ? currentTime - taskEnd : 0);
+    onClose();
+  };
+
+  return (
+    <div
+      ref={menuRef}
+      onClick={(event) => event.stopPropagation()}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      style={{
+        position: 'fixed',
+        top: position?.top ?? '50%',
+        left: position?.left ?? '50%',
+        transform: position ? undefined : 'translate(-50%, -50%)',
+        backgroundColor: '#111',
+        border: '1px solid #fff',
+        borderRadius: '6px',
+        overflow: 'hidden',
+        minWidth: '160px',
+        zIndex: 1000,
+      }}
+    >
+      {([
+        ['to-do', 'Not completed yet'],
+        ['in-progress', 'In progress'],
+        ['completed', 'Completed!'],
+      ] as const).map(([status, label]) => (
+        <button
+          key={status}
+          onClick={() => choose(status)}
+          style={{
+            display: 'block', width: '100%', padding: '12px 16px',
+            background: 'none', border: 'none', borderBottom: '1px solid #1a1a1a',
+            color: '#fff', textAlign: 'left', cursor: 'pointer',
+            fontFamily: 'var(--font-geist-sans), sans-serif', fontSize: '13px',
+          }}
+        >
+          {label}{taskCurrentStatus.includes(status) ? ' (current)' : ''}
+        </button>
+      ))}
+    </div>
+  );
+};
+
 export function ToDoPageContent() {
-  const { allTasks, addTask, updateTask, deleteTask } = useAuth();
+  const [now, setNow] = useState(new Date());
+  const { allTasks, addTask, updateTask, updateTaskStatus, deleteTask } = useAuth();
   const [dayOffset, setDayOffset] = useState(0);
   const [showDateSelect, setShowDateSelect] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingStatus, setEditingStatus] = useState<Task | null>(null);
 
   const today = new Date();
   const viewedDate = new Date(today);
@@ -865,8 +946,15 @@ export function ToDoPageContent() {
     letterSpacing: "0.5px",
   };
 
+  const currentTime = (now.getHours() * 60) + now.getMinutes();
+
   const dayName = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"][viewedDate.getDay()];
   const dateLabel = getDateLabel(viewedDate, today);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleAddTask = async (t: Omit<Task, "id">) => {
     setIsSaving(true);
@@ -902,6 +990,23 @@ export function ToDoPageContent() {
       alert('Error deleting task: ' + (error as any).message);
     }
     setIsSaving(false);
+  };
+
+  const handleStatusUpdate = async (status: TaskStatus, overTime: number) => {
+    if (!editingStatus) return;
+    setIsSaving(true);
+    try {
+      const task = tasks.find((item) => item.id === editingStatus.id);
+      if (status === 'completed-late' && overTime > 0) {
+        alert(`Notice: You are completing this task ${overTime} minute(s) past its scheduled end time.`);
+      }
+      await updateTaskStatus(task?.repeatOrigin ?? currentKey, editingStatus.id, status, overTime);
+    } catch (error) {
+      alert('Error updating task status: ' + (error as Error).message);
+    } finally {
+      setIsSaving(false);
+      setEditingStatus(null);
+    }
   };
 
   return (
@@ -987,7 +1092,7 @@ export function ToDoPageContent() {
             {isSaving ? "SAVING..." : "+ Add Task"}
           </button>
           <p>
-            Click an item on the to-do list to edit or delete a task.
+            Click an item on the to-do list to edit or delete a task, or select "Change status".
           </p>
         </div>
 
@@ -1013,12 +1118,16 @@ export function ToDoPageContent() {
                   <div style={{ width: "4px", minHeight: "32px", backgroundColor: task.color, borderRadius: "2px", opacity: 0.8 }} />
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: "600", color: "#fff" }}>
-                      {task.name} • {task.categoryId} {task.repeat ? <span style={{ fontSize: "10px", letterSpacing: "1px", opacity: 0.5, marginLeft: "8px", fontWeight: "400" }}>↻ REPEATING</span> : null}
+                      {task.status.includes("completed") ? <span style={{ textDecoration: "line-through" }}>{task.name}</span> : task.name} • {task.categoryId} {task.repeat ? <span style={{ fontSize: "10px", letterSpacing: "1px", opacity: 0.5, marginLeft: "8px", fontWeight: "400" }}>↻ REPEATING</span> : null}
                     </p>
                     <p style={{ margin: 0, fontSize: "12px", color: "#fff", letterSpacing: "0.5px" }}>
                       {`${String(Math.floor(task.start / 60)).padStart(2, '0')}:${String(task.start % 60).padStart(2, '0')} – ${String(Math.floor(task.end / 60)).padStart(2, '0')}:${String(task.end % 60).padStart(2, '0')}`}
                     </p>
                   </div>
+                  <button style={{...navBtnStyle, marginLeft: "auto"}} onClick={(e) => {e.stopPropagation(); setEditingStatus(task);}}
+                  >
+                    Change Status
+                  </button>
                 </div>
               ))}
             </div>
@@ -1055,6 +1164,16 @@ export function ToDoPageContent() {
           onDelete={() => handleDeleteTask(editingTask.id)}
           onClose={() => setEditingTask(null)}
           currentKey={currentKey}
+        />
+      )}
+
+      {editingStatus && (
+        <TaskStatusMenu
+          taskEnd={editingStatus.end}
+          taskCurrentStatus={editingStatus.status}
+          currentTime={currentTime}
+          onSelect={handleStatusUpdate}
+          onClose={() => setEditingStatus(null)}
         />
       )}
     </div>

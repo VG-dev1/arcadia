@@ -19,6 +19,8 @@ export interface RepeatConfig {
   unit: 'days' | 'weeks' | 'months' | 'years' | 'weekdays';
 }
 
+export type TaskStatus = 'to-do' | 'in-progress' | 'completed' | 'completed-late';
+
 export interface Task {
   id: string;
   name: string;
@@ -28,6 +30,8 @@ export interface Task {
   categoryId?: string;
   repeat?: RepeatConfig;
   repeatOrigin?: string;
+  status: TaskStatus;
+  overTime: number;
 }
 
 export interface Category {
@@ -51,6 +55,7 @@ interface AuthContextType {
   setAllTasks: (tasks: Record<string, Task[]>) => void;
   addTask: (date: string, task: Task) => Promise<void>;
   updateTask: (date: string, taskId: string, task: Omit<Task, 'id'>) => Promise<void>;
+  updateTaskStatus: (date: string, taskId: string, status: TaskStatus, overTime?: number) => Promise<void>;
   deleteTask: (date: string, taskId: string) => Promise<void>;
   loadTasks: () => Promise<void>;
   addCategory: (name: string) => Promise<Category>;
@@ -163,7 +168,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       querySnapshot.docs.forEach((docSnapshot) => {
         const path = docSnapshot.ref.path;
         if (path.startsWith(`users/${userId}/`)) {
-          // docSnapshot.ref.parent.parent is the subcollection's parent document (the date folder)
           const dateKey = docSnapshot.ref.parent.parent?.id;
           if (dateKey) {
             const data = docSnapshot.data();
@@ -175,8 +179,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               color: data.color,
               categoryId: data.categoryId || 'general',
               repeat: data.repeat,
-              // FIX: If repeatOrigin field doesn't exist on the document, fall back to its actual dateKey folder name
               repeatOrigin: data.repeatOrigin || dateKey,
+              status: data.status || 'to-do',
+              overTime: data.overTime || 0
             };
             if (!tasksMap[dateKey]) {
               tasksMap[dateKey] = [];
@@ -257,6 +262,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
+  const updateTaskStatus = async (date: string, taskId: string, status: TaskStatus, overTime = 0) => {
+    const task = allTasks[date]?.find((item) => item.id === taskId);
+    if (!task) throw new Error('Task not found');
+
+    await updateTask(date, taskId, { ...task, status, overTime });
+  };
+
   const deleteTask = async (date: string, taskId: string) => {
     if (!user) return;
     try {
@@ -277,7 +289,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <AuthContext.Provider value={{ 
       user, userProfile, loading, allTasks, categories,
-      setAllTasks, addTask, updateTask, deleteTask, loadTasks, addCategory, updateCategory, deleteCategory
+      setAllTasks, addTask, updateTask, updateTaskStatus, deleteTask, loadTasks, addCategory, updateCategory, deleteCategory
     }}>
       {children}
     </AuthContext.Provider>

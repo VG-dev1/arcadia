@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
-const SIDEBAR_ROUTES = ["/dashboard", "/insights", "/todo", "/calendar"];
+const SIDEBAR_ROUTES = ["/dashboard", "/insights", "/todo", "/calendar", "/kanban"];
 
 const NAV_ITEMS = [
   {
@@ -160,6 +160,58 @@ const NAV_ITEMS = [
           stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: "Kanban Board",
+    path: "/kanban",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect
+          x="2.5"
+          y="2.5"
+          width="13"
+          height="13"
+          rx="1.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="9"
+          y1="2.5"
+          x2="9"
+          y2="15.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+        <rect
+          x="4.5"
+          y="4.5"
+          width="2.5"
+          height="6"
+          rx="0.5"
+          stroke="currentColor"
+          strokeWidth="1.2"
+        />
+        <rect
+          x="11"
+          y="4.5"
+          width="2.5"
+          height="3.5"
+          rx="0.5"
+          stroke="currentColor"
+          strokeWidth="1.2"
+        />
+        <rect
+          x="11"
+          y="10"
+          width="2.5"
+          height="3.5"
+          rx="0.5"
+          stroke="currentColor"
+          strokeWidth="1.2"
         />
       </svg>
     ),

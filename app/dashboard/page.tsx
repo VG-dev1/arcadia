@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, type RepeatConfig, type Task } from '@/lib/AuthContext';
+import { useAuth, type RepeatConfig, type Task, type TaskStatus } from '@/lib/AuthContext';
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
+import { TaskStatusMenu } from '@/app/todo/page';
 import { db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
@@ -550,7 +551,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
       color, 
       categoryId: selectedCategoryId,
       repeat, 
-      repeatOrigin: initial?.repeatOrigin ?? currentKey 
+      repeatOrigin: initial?.repeatOrigin ?? currentKey,
+      status: initial?.status ?? 'to-do',
+      overTime: initial?.overTime ?? 0,
     });
     onClose();
   };
@@ -844,6 +847,7 @@ const ClockAppContent: React.FC = () => {
   const [isSharing, setIsSharing] = useState(false);
   const [shareError, setShareError] = useState('');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [statusContext, setStatusContext] = useState<{ task: Task; top: number; left: number } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [clockSize, setClockSize] = useState(520);
 
@@ -852,7 +856,7 @@ const ClockAppContent: React.FC = () => {
     setIsMounted(true);
   }, []);
   
-  const { allTasks, addTask, updateTask, deleteTask, userProfile, user } = useAuth();
+  const { allTasks, addTask, updateTask, updateTaskStatus, deleteTask, userProfile, user } = useAuth();
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -863,9 +867,9 @@ const ClockAppContent: React.FC = () => {
         if (width < 640) {
           setClockSize(width * 0.85);
         } else if (width < 1024) {
-          setClockSize(400);
+          setClockSize(500);
         } else {
-          setClockSize(520);
+          setClockSize(600);
         }
       }
     };
@@ -930,6 +934,23 @@ const ClockAppContent: React.FC = () => {
         alert('Error deleting task: ' + (error as any).message);
       }
       setIsSaving(false);
+    }
+  };
+
+  const handleStatusUpdate = async (status: TaskStatus, overTime: number) => {
+    if (!statusContext) return;
+    setIsSaving(true);
+    try {
+      const targetKey = statusContext.task.repeatOrigin ?? currentKey;
+      if (status === 'completed-late' && overTime > 0) {
+        alert(`Notice: You are completing this task ${overTime} minute(s) past its scheduled end time.`);
+      }
+      await updateTaskStatus(targetKey, statusContext.task.id, status, overTime);
+    } catch (error) {
+      alert('Error updating task status: ' + (error as Error).message);
+    } finally {
+      setIsSaving(false);
+      setStatusContext(null);
     }
   };
 
@@ -1172,7 +1193,14 @@ const ClockAppContent: React.FC = () => {
               const textOffset = startOffset + strokeLength / 2;
 
               return (
-                <g key={task.id} style={{ cursor: "pointer" }}>
+                <g
+                  key={task.id}
+                  style={{ cursor: "pointer" }}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    setStatusContext({ task, top: event.clientY, left: event.clientX });
+                  }}
+                >
                   <circle
                     cx={center} cy={center} r={radius}
                     fill="none"
@@ -1189,7 +1217,7 @@ const ClockAppContent: React.FC = () => {
                   />
                   <text fill={task.color} fontSize={`${(clockSize / 520) * 11}px`} fontWeight="600" opacity="0.9">
                     <textPath href={`#path-${task.id}`} startOffset={textOffset} textAnchor="middle" dominantBaseline="central">
-                      {task.name}
+                      {task.status.includes("completed") ? `${task.name} (completed)` : task.name}
                     </textPath>
                   </text>
                 </g>
@@ -1230,7 +1258,7 @@ const ClockAppContent: React.FC = () => {
             {isSaving ? "SAVING..." : "+ Add Task"}
           </button>
           <p style={{ fontSize: "12px", color: "#fff", lineHeight: "1.6", maxWidth: "200px", margin: 0 }}>
-            Click an arc on the clock to edit or delete a task.
+            Click an arc on the clock to edit or delete a task, or right click to change the status of it.
           </p>
         </div>
       </div>
@@ -1252,6 +1280,17 @@ const ClockAppContent: React.FC = () => {
           onDelete={() => handleDeleteTask(editingTask.id)}
           onClose={() => setEditingTask(null)}
           currentKey={currentKey}
+        />
+      )}
+
+      {statusContext && (
+        <TaskStatusMenu
+          taskEnd={statusContext.task.end}
+          taskCurrentStatus={statusContext.task.status}
+          currentTime={currentMinutes}
+          position={{ top: statusContext.top, left: statusContext.left }}
+          onSelect={handleStatusUpdate}
+          onClose={() => setStatusContext(null)}
         />
       )}
 
