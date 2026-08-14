@@ -23,15 +23,26 @@ const cuprum = Cuprum({
 });
 
 export const metadata: Metadata = {
-  title: "Arcadia",
-  description: "Visualize your daily tasks on a 24-hour clock",
+  title: {
+    default: "Arcadia | 24-Hour Circular Day Planner",
+    template: "%s | Arcadia"
+  },
+  description: "A circular planner app that maps your schedule directly onto a 24-hour clock face. Built for people who struggle with text-heavy lists, time blindness, or need a visual ADHD planner.",
   verification: {
     google: "uTOvvZgIxWCZPNdoDdipI_vEzWJTg1cSJzXlel6UkJk"
   },
   metadataBase: new URL("https://arcadia.vercel.app"),
   alternates: {
-    canonical: "/",
+    canonical: "https://arcadia.vercel.app",
   },
+  openGraph: {
+    title: "Arcadia | 24-Hour Circular Day Planner",
+    description: "See your calendar as blocks of color around a clock face instead of a standard checklist. Built for visual time tracking.",
+    url: "https://arcadia.vercel.app",
+    siteName: "Arcadia",
+    locale: "en_US",
+    type: "website",
+  }
 };
 
 export default function RootLayout({
@@ -40,7 +51,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-
     <html
       lang="en"
       className={`${cuprum.variable} h-full antialiased`}
@@ -62,9 +72,7 @@ export default function RootLayout({
         </Script>
 
         <AuthProvider>
-          {/* Top bar component decoupled safely */}
           <Navbar />
-
           <main className="flex-1 flex flex-col">
             {children}
           </main>
