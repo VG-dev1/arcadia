@@ -9,6 +9,13 @@ import { doc, setDoc } from 'firebase/firestore';
 
 type RepeatUnit = RepeatConfig['unit'];
 
+interface SharedTemplate {
+  id: string;
+  name: string;
+  authorName: string;
+  tasks: Task[];
+}
+
 const PRESET_COLORS = [
   "#ffffff", "#a3a3a3", "#ef4444", "#f97316",
   "#eab308", "#22c55e", "#38bdf8", "#818cf8",
@@ -54,6 +61,24 @@ const sanitizeForFirestore = (value: unknown): unknown => {
   }
 
   return value;
+};
+
+const getStoredTemplate = (): SharedTemplate | null => {
+  if (typeof window === 'undefined') return null;
+
+  const storedTemplate = localStorage.getItem('template');
+  if (!storedTemplate) return null;
+
+  try {
+    const template = JSON.parse(storedTemplate) as SharedTemplate;
+    if (!template || typeof template.name !== 'string' || !Array.isArray(template.tasks)) {
+      throw new Error('Invalid template');
+    }
+    return template;
+  } catch {
+    localStorage.removeItem('template');
+    return null;
+  }
 };
 
 const getDateLabel = (d: Date, today: Date): string => {
@@ -811,6 +836,9 @@ const ClockAppContent: React.FC = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [showDateSelect, setShowDateSelect] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [pendingTemplate, setPendingTemplate] = useState<SharedTemplate | null>(getStoredTemplate);
+  const [templateImportDate, setTemplateImportDate] = useState(dateKey(new Date()));
+  const [templateImportError, setTemplateImportError] = useState('');
   const [shareTemplateName, setShareTemplateName] = useState('');
   const [shareLink, setShareLink] = useState('');
   const [isSharing, setIsSharing] = useState(false);
@@ -933,6 +961,49 @@ const ClockAppContent: React.FC = () => {
       setShareError('Could not create a shareable template right now.');
     } finally {
       setIsSharing(false);
+    }
+  };
+
+  const closeTemplateImport = () => {
+    localStorage.removeItem('template');
+    setPendingTemplate(null);
+    setTemplateImportError('');
+  };
+
+  const handleTemplateImport = async () => {
+    if (!pendingTemplate || !templateImportDate || isSaving) return;
+
+    setIsSaving(true);
+    setTemplateImportError('');
+
+    try {
+      await Promise.all(
+        (allTasks[templateImportDate] ?? []).map((task) =>
+          deleteTask(templateImportDate, task.id)
+        )
+      );
+
+      await Promise.all(
+        pendingTemplate.tasks.map((task) =>
+          addTask(templateImportDate, {
+            ...task,
+            id: crypto.randomUUID(),
+            repeatOrigin: task.repeat ? templateImportDate : undefined,
+          })
+        )
+      );
+
+      const [year, month, day] = templateImportDate.split('-').map(Number);
+      const selectedDate = new Date(year, month - 1, day);
+      const today = new Date();
+      const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      setDayOffset(Math.round((selectedDate.getTime() - todayDate.getTime()) / 86400000));
+      closeTemplateImport();
+    } catch (error) {
+      console.error('Error importing template:', error);
+      setTemplateImportError('Could not import this template. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -1256,6 +1327,43 @@ const ClockAppContent: React.FC = () => {
               </div>
             </>
           )}
+        </Modal>
+      )}
+
+      {pendingTemplate && (
+        <Modal onClose={closeTemplateImport}>
+          <h2 style={{ margin: "0 0 16px 0", fontSize: "18px", fontWeight: "600", letterSpacing: "0.5px" }}>
+            Import Template
+          </h2>
+          <p style={{ margin: "0 0 24px 0", color: "#fff", lineHeight: 1.6 }}>
+            You&apos;re about to import {pendingTemplate.name} by {pendingTemplate.authorName || 'Anonymous'}. Select a date to import it to. Existing tasks on that day will be overwritten.
+          </p>
+          <div style={{ marginBottom: "24px" }}>
+            <ModalLabel>Select date</ModalLabel>
+            <ModalInput
+              type="date"
+              value={templateImportDate}
+              onChange={(e) => { setTemplateImportDate(e.target.value); setTemplateImportError(''); }}
+              autoFocus
+            />
+            {templateImportError && <p style={{ color: "#ef4444", fontSize: "12px", margin: "8px 0 0 0" }}>{templateImportError}</p>}
+          </div>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+            <button
+              onClick={closeTemplateImport}
+              disabled={isSaving}
+              style={{ background: "none", border: "1px solid #fff", color: "#fff", padding: "10px 18px", borderRadius: "6px", cursor: isSaving ? "not-allowed" : "pointer", opacity: isSaving ? 0.5 : 1 }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleTemplateImport}
+              disabled={!templateImportDate || isSaving}
+              style={{ background: "white", border: "none", color: "black", padding: "10px 22px", borderRadius: "6px", cursor: !templateImportDate || isSaving ? "not-allowed" : "pointer", fontWeight: 600, opacity: !templateImportDate || isSaving ? 0.5 : 1 }}
+            >
+              {isSaving ? 'Importing...' : 'Import'}
+            </button>
+          </div>
         </Modal>
       )}
     </div>
