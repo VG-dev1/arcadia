@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAuth, Task } from '@/lib/AuthContext';
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
@@ -34,14 +34,9 @@ const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
 };
 
 export function InsightsPageContent() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const hoursInMonth = daysInMonth * 24;
-
     const { allTasks, categories } = useAuth();
     const searchParams = useSearchParams();
+    const router = useRouter();
 
     const targetMonthStr = useMemo(() => {
         const d = new Date();
@@ -50,17 +45,44 @@ export function InsightsPageContent() {
         return searchParams.get('date')?.substring(0, 7) || `${yyyy}-${mm}`;
     }, [searchParams]);
 
+    const [currentYear, currentMonth] = useMemo(() => {
+        return targetMonthStr.split('-').map(Number);
+    }, [targetMonthStr]);
+
+    const hoursInMonth = useMemo(() => {
+        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+        return daysInMonth * 24;
+    }, [currentYear, currentMonth]);
+
+    const formattedMonthLabel = useMemo(() => {
+        const dateObj = new Date(currentYear, currentMonth - 1, 1);
+        return dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }, [currentYear, currentMonth]);
+
+    const handleNavigateMonth = (direction: 'prev' | 'next') => {
+        let newMonth = direction === 'next' ? currentMonth + 1 : currentMonth - 1;
+        let newYear = currentYear;
+
+        if (newMonth > 12) {
+            newMonth = 1;
+            newYear += 1;
+        } else if (newMonth < 1) {
+            newMonth = 12;
+            newYear -= 1;
+        }
+
+        const paddedMonth = String(newMonth).padStart(2, '0');
+        router.push(`/insights?date=${newYear}-${paddedMonth}`);
+    };
+
     const monthlyTasks = useMemo(() => {
         let compiled: Task[] = [];
-
-        const [targetYear, targetMonth] = targetMonthStr.split('-').map(Number);
-
-        const daysInTargetMonth = new Date(targetYear, targetMonth, 0).getDate();
+        const daysInTargetMonth = new Date(currentYear, currentMonth, 0).getDate();
 
         const daysOfThisMonth: string[] = [];
         for (let day = 1; day <= daysInTargetMonth; day++) {
             const formattedDay = String(day).padStart(2, '0');
-            daysOfThisMonth.push(`${targetYear}-${String(targetMonth).padStart(2, '0')}-${formattedDay}`);
+            daysOfThisMonth.push(`${currentYear}-${String(currentMonth).padStart(2, '0')}-${formattedDay}`);
         }
 
         const uniqueDatabaseTasks: Task[] = [];
@@ -89,7 +111,7 @@ export function InsightsPageContent() {
         });
 
         return compiled;
-    }, [allTasks, targetMonthStr]);
+    }, [allTasks, currentYear, currentMonth]);
 
     const metrics = useMemo(() => {
         let grandTotalHours = 0;
@@ -232,13 +254,60 @@ export function InsightsPageContent() {
             backgroundColor: "#0B0F1A",
             color: "white",
             fontFamily: "var(--font-geist-sans), sans-serif",
-            overflowX: "hidden"
+            overflowX: "hidden",
+            width: "100%"
         }}>
             <div style={{ padding: "40px 24px", maxWidth: "1200px", margin: "0 auto" }}>
-                <h1 style={{ fontSize: "48px", fontWeight: "600", textAlign: "center", marginBottom: "40px", color: "#fff" }}>
-                    Your monthly insights are here!
-                </h1>
-                
+
+                <div style={{ textAlign: "center", marginBottom: "40px" }}>
+                    <h1 style={{ fontSize: "48px", fontWeight: "600", margin: "0 0 16px 0", color: "#fff", letterSpacing: "-1px" }}>
+                        Your monthly insights are here!
+                    </h1>
+
+                    <div style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "24px",
+                    }}>
+                        <span style={{ fontSize: "16px", fontWeight: "600", color: "#fff", minWidth: "140px", textAlign: "left" }}>
+                            {formattedMonthLabel}
+                        </span>
+                        
+                        <div style={{ display: "flex", gap: "6px" }}>
+                            <button 
+                                onClick={() => handleNavigateMonth('prev')}
+                                style={{
+                                    backgroundColor: "#1e2638",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "20px",
+                                    padding: "8px 18px",
+                                    fontSize: "13px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Prev
+                            </button>
+                            <button 
+                                onClick={() => handleNavigateMonth('next')}
+                                style={{
+                                    backgroundColor: "#fff",
+                                    color: "#000",
+                                    border: "none",
+                                    borderRadius: "20px",
+                                    padding: "8px 18px",
+                                    fontSize: "13px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",

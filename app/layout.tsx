@@ -4,7 +4,9 @@ import Script from "next/script";
 import { AuthProvider } from "@/lib/AuthContext";
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
+import { Footer } from "@/components/Footer";
 import "./globals.css";
+import Checklist from "@/components/Checklist";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -85,6 +87,8 @@ export default function RootLayout({
               {children}
             </main>
           </div>
+          <Footer />
+          <Checklist />
         </AuthProvider>
       </body>
     </html>
