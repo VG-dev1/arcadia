@@ -1339,6 +1339,9 @@ const ClockAppContent: React.FC = () => {
                     strokeOpacity="0.35"
                     strokeDasharray={`${strokeLength} ${circumference}`}
                     transform={`rotate(${rotDeg} ${center} ${center})`}
+                    style={{ transition: "stroke-opacity 160ms ease" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.strokeOpacity = "0.5"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.strokeOpacity = "0.35"; }}
                   />
                   <path
                     id={`path-${task.id}`}
