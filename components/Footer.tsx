@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 
-const FOOTER_ROUTES = ["/", "/privacy", "/terms", "/templates"];
+const FOOTER_ROUTES = ["/", "/features", "/features/views", "/privacy", "/terms", "/templates"];
 
 export function Footer() {
   const pathname = usePathname();

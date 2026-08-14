@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
-const SIDEBAR_ROUTES = ["/dashboard", "/insights", "/todo"];
+const SIDEBAR_ROUTES = ["/dashboard", "/insights", "/todo", "/calendar"];
 
 const NAV_ITEMS = [
   {
@@ -71,6 +71,94 @@ const NAV_ITEMS = [
           y2="12" 
           stroke="currentColor" 
           strokeWidth="1.5" 
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: "Calendar",
+    path: "/calendar",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect
+          x="2.5"
+          y="3.5"
+          width="13"
+          height="12"
+          rx="1.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="6"
+          y1="2.5"
+          x2="6"
+          y2="5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="12"
+          y1="2.5"
+          x2="12"
+          y2="5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="2.5"
+          y1="7"
+          x2="15.5"
+          y2="7"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="6"
+          y1="10"
+          x2="6"
+          y2="10"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="9"
+          y1="10"
+          x2="9"
+          y2="10"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="12"
+          y1="10"
+          x2="12"
+          y2="10"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="6"
+          y1="13"
+          x2="6"
+          y2="13"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="9"
+          y1="13"
+          x2="9"
+          y2="13"
+          stroke="currentColor"
+          strokeWidth="1.5"
           strokeLinecap="round"
         />
       </svg>

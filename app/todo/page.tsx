@@ -443,7 +443,7 @@ interface TaskFormProps {
   currentKey: string;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({
+export const TaskForm: React.FC<TaskFormProps> = ({
   initial,
   onSave,
   onDelete,
@@ -766,7 +766,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   );
 };
 
-const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDate }) => {
+export const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDate }) => {
   const [dateInput, setDateInput] = useState(new Date().toISOString().split('T')[0]);
 
   const handleConfirm = () => {
@@ -947,7 +947,6 @@ export function ToDoPageContent() {
       <div style={{ width: "100%", maxWidth: "980px", margin: "0 auto" }}>
         <div style={{ display: "grid", gap: "24px", marginBottom: "32px", justifyContent: "center" }}>
           <div>
-            <p>Although Arcadia encourages the use of the clock wheel, we still provide a to-do list!</p>
             <p style={{ fontSize: "11px", letterSpacing: "2.5px", color: "#fff", textTransform: "uppercase", margin: "0 0 10px 0" }}>
               {dayName}
             </p>

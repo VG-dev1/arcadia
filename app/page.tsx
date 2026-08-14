@@ -52,29 +52,6 @@ export default function LandingPage() {
   const getRotation = (minutes: number) => (minutes / 1440) * 360 - 90;
   const handAngle = (animatedMinutes / 1440) * 360;
 
-  const features = [
-    { 
-      title: "The Clock Face Layout", 
-      desc: "Your events are drawn as solid blocks of color directly on a 24-hour wheel. You can spot open gaps in your schedule immediately without reading time stamps.",
-      img: "/clock.png" 
-    },
-    { 
-      title: "Simple Time Tracking Logs",
-      desc: "Arcadia logs your completed events automatically. Look back at your charts from last week to see where your time actually went, then adjust your upcoming schedule based on real numbers.",
-      img: "/daily-summary.png" 
-    },
-    { 
-      title: "One-Task View", 
-      desc: "Hide the rest of your day when you need to work. This view keeps only your current task visible on the dial, acting as a constant visual anchor so you don't wander off.",
-      img: "/focus-mode.png" 
-    },
-    { 
-      title: "Valuable Insights",
-      desc: "Arcadia tracks your time usage and gives you personalized insights about your habits. See which hours you are most productive, how long you spend on different types of tasks, and where you can find hidden pockets of free time.",
-      img: "/insights.png"
-    }
-  ];
-
   return (
     <div style={{
       backgroundColor: "#0B0F1A",
@@ -82,382 +59,620 @@ export default function LandingPage() {
       fontFamily: "var(--font-geist-sans), sans-serif",
       overflowX: "hidden"
     }}>
+      <style>{`
+        .hero-left {
+          width: 100%;
+          max-width: 760px;
+          text-align: center;
+        }
+
+        .hero-left p {
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
+
+        .hero-right-wrapper {
+          width: 100%;
+          max-width: 520px;
+          display: flex;
+          justify-content: center;
+        }
+
+        .demo-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 32px;
+          width: 100%;
+          align-items: stretch;
+        }
+
+        .demo-card {
+          display: flex;
+          flex-direction: column;
+          background: #111420;
+          border: 1px solid #1e2638;
+          border-radius: 20px;
+          padding: 24px;
+          box-sizing: border-box;
+          height: 580px;
+          overflow: hidden;
+        }
+
+        .demo-card-title {
+          font-size: 20px;
+          font-weight: 600;
+          color: #ffffff;
+          margin: 0 0 20px 0;
+          flex-shrink: 0;
+        }
+
+        .demo-content-body {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          width: 100%;
+          overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+          .demo-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .demo-card {
+            padding: 16px;
+            height: auto;
+            min-height: 480px;
+          }
+
+          .hero-right-wrapper {
+            max-width: 290px;
+          }
+        }
+      `}</style>
 
       <section style={{
-        minHeight: "95vh",
+        minHeight: "55vh",
+        width: "100%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "60px 20px",
-        maxWidth: "1280px",
-        margin: "0 auto",
-        position: "relative",
+        padding: "120px 20px 60px",
+        boxSizing: "border-box"
       }}>
-        <style>{`
-          .hero-container {
-            display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 60px;
-            align-items: center;
-            width: 100%;
-          }
-          
-          .hero-right-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-          }
+        <div className="hero-left" style={{ zIndex: 1 }}>
+          <h1 style={{ fontSize: "clamp(32px, 5.5vw, 76px)", fontWeight: "600", lineHeight: "1.1", margin: "0 0 24px 0", letterSpacing: "-2px" }}>
+            One day. Many ways to <span style={{ color: "#818cf8" }}>see it.</span>
+          </h1>
+          <p style={{ fontSize: "18px", color: "#a3a3a3", maxWidth: "600px", margin: "0 auto 40px", lineHeight: "1.6" }}>
+            See your tasks as a clock, calendar, list, or focus timer. All synced together in one workspace.
+          </p>
 
-          @media (max-width: 1024px) {
-            .hero-container {
-              grid-template-columns: 1fr;
-              text-align: center;
-              gap: 50px;
-            }
-            .hero-left { order: 1; }
-            .hero-right { order: 2; display: flex; justify-content: center; }
-            
-            .hero-right-wrapper {
-              max-width: 380px;
-              margin: 0 auto;
-            }
-          }
-
-          @media (max-width: 480px) {
-            .hero-right-wrapper {
-              max-width: 290px;
-            }
-          }
-
-          .feature-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            margin-bottom: 120px;
-          }
-
-          .feature-row.reverse .feature-text-block {
-            order: 2;
-          }
-          .feature-row.reverse .feature-visual-frame {
-            order: 1;
-          }
-
-          .feature-visual-frame {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #111420;
-            border: 1px solid #1e2638;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            padding: 24px;
-            box-sizing: border-box;
-            width: 100%;
-          }
-
-          .feature-image {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 8px;
-          }
-
-          @media (max-width: 768px) {
-            .feature-row, .feature-row.reverse {
-              grid-template-columns: 1fr;
-              gap: 32px;
-              margin-bottom: 80px;
-            }
-            .feature-row .feature-text-block { order: 2 !important; }
-            .feature-row .feature-visual-frame { order: 1 !important; }
-            
-            .feature-visual-frame {
-              padding: 16px;
-            }
-          }
-        `}</style>
-
-        <div className="hero-container">
-          <div className="hero-left" style={{ zIndex: 1 }}>
-            <p style={{ letterSpacing: "4px", color: "#a3a3a3", fontSize: "13px", textTransform: "uppercase", marginBottom: "20px", fontWeight: "500" }}>
-              Visual time management software
-            </p>
-            <h1 style={{ fontSize: "clamp(32px, 5.5vw, 76px)", fontWeight: "600", lineHeight: "1.1", margin: "0 0 24px 0", letterSpacing: "-2px" }}>
-              Stop losing track of hours.<br />See your day on a <span style={{ color: "#818cf8" }}>24-hour circle.</span>
-            </h1>
-            <p style={{ fontSize: "18px", color: "#a3a3a3", maxWidth: "600px", margin: "0 auto 40px 0", lineHeight: "1.6" }}>
-              Arcadia maps your to-do items onto a beautiful clock face. If you struggle with time blindness or get overwhelmed by text-heavy lists, this shows you instantly how much time you have left between tasks.
-            </p>
-            
-            <div data-nosnippet>
-              <button 
-                onClick={() => router.push('/dashboard')}
-                style={{
-                  backgroundColor: "white", color: "black", border: "none",
-                  padding: "18px 44px", borderRadius: "6px", fontSize: "16px",
-                  fontWeight: "600", cursor: "pointer", transition: "transform 0.2s ease",
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                TRY ARCADIA FREE
-              </button>
-            </div>
-          </div>
-
-          <div className="hero-right" style={{ display: "flex", justifyContent: "center", position: "relative", width: "100%" }}>
-            <div className="hero-right-wrapper">
-              <div style={{
-                position: "relative",
-                padding: "20px",
-                background: "radial-gradient(circle at center, rgba(129, 140, 248, 0.04) 0%, transparent 70%)",
-                borderRadius: "50%",
-                width: "100%",
-                boxSizing: "border-box"
-              }}>
-                <svg
-                  viewBox={`0 0 ${clockSize} ${clockSize}`}
-                  style={{ 
-                    display: "block", 
-                    filter: "drop-shadow(0 0 24px rgba(0,0,0,0.5))",
-                    width: "100%",
-                    height: "auto"
-                  }}
-                >
-                  {Array.from({ length: 288 }).map((_, i) => {
-                    const mins = i * 5;
-                    let length = 4;
-                    let color = "rgba(255, 255, 255, 0.25)";
-                    if (mins % 360 === 0) { length = 12; color = "rgba(255, 255, 255, 0.8)"; }
-                    else if (mins % 60 === 0) { length = 9; color = "rgba(255, 255, 255, 0.5)"; }
-                    else if (mins % 20 === 0) { length = 6; color = "rgba(255, 255, 255, 0.35)"; }
-                    return (
-                      <line
-                        key={mins}
-                        x1={center} y1={center - radius - 10}
-                        x2={center} y2={center - radius - 10 - length}
-                        stroke={color}
-                        strokeWidth="1"
-                        transform={`rotate(${(mins / 1440) * 360} ${center} ${center})`}
-                      />
-                    );
-                  })}
-
-                  {[0, 6, 12, 18].map((h) => {
-                    const angle = (h / 24) * 360 - 90;
-                    const labelR = radius + 30;
-                    const lx = center + labelR * Math.cos((angle * Math.PI) / 180);
-                    const ly = center + labelR * Math.sin((angle * Math.PI) / 180);
-                    return (
-                      <text key={h} x={lx} y={ly} fill="rgba(255, 255, 255, 0.4)" fontSize="11px"
-                        fontWeight="600" textAnchor="middle" dominantBaseline="central" letterSpacing="0.5px">
-                        {h === 0 ? "00:00" : `${h}:00`}
-                      </text>
-                    );
-                  })}
-
-                  {DEMO_TASKS.map((task) => {
-                    const duration = task.end - task.start;
-                    const strokeLength = (duration / 1440) * circumference;
-                    const rotDeg = getRotation(task.start);
-                    const startOffset = ((rotDeg + 90) / 360) * circumference;
-                    const textOffset = startOffset + strokeLength / 2;
-
-                    return (
-                      <g key={task.id}>
-                        <circle
-                          cx={center} cy={center} r={radius}
-                          fill="none"
-                          stroke={task.color}
-                          strokeWidth={arcWidth}
-                          strokeOpacity="0.35"
-                          strokeDasharray={`${strokeLength} ${circumference}`}
-                          strokeDashoffset={hasLoaded ? 0 : strokeLength}
-                          style={{ transition: "stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)" }}
-                          transform={`rotate(${rotDeg} ${center} ${center})`}
-                        />
-                        <path
-                          id={`landing-path-${task.id}`}
-                          d={`M ${center},${center - radius} a ${radius},${radius} 0 1,1 0,${2 * radius} a ${radius},${radius} 0 1,1 0,-${2 * radius}`}
-                          fill="none"
-                        />
-                        <text fill={task.color} fontSize="10px" fontWeight="600" opacity="0.85" letterSpacing="0.2px">
-                          <textPath href={`#landing-path-${task.id}`} startOffset={textOffset} textAnchor="middle" dominantBaseline="central">
-                            {task.name}
-                          </textPath>
-                        </text>
-                      </g>
-                    );
-                  })}
-
-                  <circle
-                    cx={center + radius * Math.sin((handAngle * Math.PI) / 180)}
-                    cy={center - radius * Math.cos((handAngle * Math.PI) / 180)}
-                    r="5" 
-                    fill="white" 
-                    style={{ filter: "drop-shadow(0 0 6px white)" }}
-                  />
-
-                  <text x={center} y={center - 12} fill="white" fontSize="42px" fontWeight="600"
-                    textAnchor="middle" dominantBaseline="central" letterSpacing="-1px">
-                    {minutesToTime(animatedMinutes)}
-                  </text>
-                  <text x={center} y={center + 26} fill="#818cf8" fontSize="11px"
-                    textAnchor="middle" letterSpacing="3px" fontWeight="600">
-                    LIVE DEMO
-                  </text>
-                </svg>
-              </div>
-            </div>
+          <div data-nosnippet style={{ display: "flex", gap: "32px", justifyContent: "center", alignItems: "center" }}>
+            <button
+              onClick={() => router.push('/dashboard')}
+              style={{
+                backgroundColor: "white", color: "black", border: "none",
+                padding: "18px 44px", borderRadius: "6px", fontSize: "16px",
+                fontWeight: "600", cursor: "pointer", transition: "transform 0.2s ease",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              TRY ARCADIA FREE
+            </button>
+            <button
+              onClick={() => router.push('/features')}
+              style={{
+                backgroundColor: "none", color: "white", border: "1px solid #fff",
+                padding: "18px 44px", borderRadius: "6px", fontSize: "16px",
+                fontWeight: "600", cursor: "pointer", transition: "transform 0.2s ease",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              SEE FEATURES
+            </button>
           </div>
         </div>
       </section>
 
-      <section style={{ padding: "100px 20px 60px 20px", maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "90px" }}>
-          <h2 style={{ fontSize: "36px", fontWeight: "600", marginBottom: "16px", letterSpacing: "-0.5px" }}>
-            Built differently than a standard to-do list
-          </h2>
-          <p style={{ color: "#a3a3a3", fontSize: "16px", maxWidth: "550px", margin: "0 auto", lineHeight: "1.6" }}>
-            Designed specifically to bridge the gap between planning daily goals and understanding real chronological limits.
-          </p>
-        </div>
+      <section style={{
+        width: "100%",
+        backgroundColor: "#111",
+        padding: "80px 40px",
+        boxSizing: "border-box",
+        borderTop: "1px solid #1a1a1a",
+        borderBottom: "1px solid #1a1a1a"
+      }}>
+        <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+          
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <h2 style={{ fontSize: "12px", letterSpacing: "3px", textTransform: "uppercase", color: "#818cf8", margin: "0 0 12px 0" }}>
+              Multiple Perspectives
+            </h2>
+            <p style={{ fontSize: "28px", fontWeight: "600", color: "#fff", margin: 0 }}>
+              Choose the view that fits your flow
+            </p>
+          </div>
 
-        <div>
-          {features.map((f, i) => {
-            const isOdd = i % 2 !== 0;
-            return (
-              <div key={i} className={`feature-row ${isOdd ? 'reverse' : ''}`}>
-                <div className="feature-text-block" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <div style={{ width: "40px", height: "4px", backgroundColor: "#818cf8", marginBottom: "24px" }} />
-                  <h3 style={{ fontSize: "26px", marginBottom: "18px", fontWeight: "600", color: "white", letterSpacing: "-0.5px" }}>
-                    {f.title}
-                  </h3>
-                  <p style={{ color: "#a3a3a3", lineHeight: "1.7", fontSize: "16px", margin: 0 }}>
-                    {f.desc}
-                  </p>
+          <div className="demo-grid">
+
+            <div className="demo-card">
+              <button onClick={() => router.push('/features/views#clock-view')}>Learn more</button>
+              <h3 className="demo-card-title">Clock</h3>
+              <div className="demo-content-body">
+                <div className="hero-right" style={{ display: "flex", justifyContent: "center", position: "relative", width: "100%" }}>
+                  <div className="hero-right-wrapper">
+                    <div style={{
+                      position: "relative",
+                      padding: "20px",
+                      background: "radial-gradient(circle at center, rgba(129, 140, 248, 0.04) 0%, transparent 70%)",
+                      borderRadius: "50%",
+                      width: "100%",
+                      boxSizing: "border-box"
+                    }}>
+                      <svg
+                        viewBox={`0 0 ${clockSize} ${clockSize}`}
+                        style={{
+                          display: "block",
+                          filter: "drop-shadow(0 0 24px rgba(0,0,0,0.5))",
+                          width: "100%",
+                          height: "auto"
+                        }}
+                      >
+                        {Array.from({ length: 288 }).map((_, i) => {
+                          const mins = i * 5;
+                          let length = 4;
+                          let color = "rgba(255, 255, 255, 0.25)";
+                          if (mins % 360 === 0) { length = 12; color = "rgba(255, 255, 255, 0.8)"; }
+                          else if (mins % 60 === 0) { length = 9; color = "rgba(255, 255, 255, 0.5)"; }
+                          else if (mins % 20 === 0) { length = 6; color = "rgba(255, 255, 255, 0.35)"; }
+                          return (
+                            <line
+                              key={mins}
+                              x1={center} y1={center - radius - 10}
+                              x2={center} y2={center - radius - 10 - length}
+                              stroke={color}
+                              strokeWidth="1"
+                              transform={`rotate(${(mins / 1440) * 360} ${center} ${center})`}
+                            />
+                          );
+                        })}
+
+                        {[0, 6, 12, 18].map((h) => {
+                          const angle = (h / 24) * 360 - 90;
+                          const labelR = radius + 30;
+                          const lx = center + labelR * Math.cos((angle * Math.PI) / 180);
+                          const ly = center + labelR * Math.sin((angle * Math.PI) / 180);
+                          return (
+                            <text key={h} x={lx} y={ly} fill="rgba(255, 255, 255, 0.4)" fontSize="11px"
+                              fontWeight="600" textAnchor="middle" dominantBaseline="central" letterSpacing="0.5px">
+                              {h === 0 ? "00:00" : `${h}:00`}
+                            </text>
+                          );
+                        })}
+
+                        {DEMO_TASKS.map((task) => {
+                          const duration = task.end - task.start;
+                          const strokeLength = (duration / 1440) * circumference;
+                          const rotDeg = getRotation(task.start);
+                          const startOffset = ((rotDeg + 90) / 360) * circumference;
+                          const textOffset = startOffset + strokeLength / 2;
+
+                          return (
+                            <g key={task.id}>
+                              <circle
+                                cx={center} cy={center} r={radius}
+                                fill="none"
+                                stroke={task.color}
+                                strokeWidth={arcWidth}
+                                strokeOpacity="0.35"
+                                strokeDasharray={`${strokeLength} ${circumference}`}
+                                strokeDashoffset={hasLoaded ? 0 : strokeLength}
+                                style={{ transition: "stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)" }}
+                                transform={`rotate(${rotDeg} ${center} ${center})`}
+                              />
+                              <path
+                                id={`landing-path-${task.id}`}
+                                d={`M ${center},${center - radius} a ${radius},${radius} 0 1,1 0,${2 * radius} a ${radius},${radius} 0 1,1 0,-${2 * radius}`}
+                                fill="none"
+                              />
+                              <text fill={task.color} fontSize="10px" fontWeight="600" opacity="0.85" letterSpacing="0.2px">
+                                <textPath href={`#landing-path-${task.id}`} startOffset={textOffset} textAnchor="middle" dominantBaseline="central">
+                                  {task.name}
+                                </textPath>
+                              </text>
+                            </g>
+                          );
+                        })}
+
+                        <circle
+                          cx={center + radius * Math.sin((handAngle * Math.PI) / 180)}
+                          cy={center - radius * Math.cos((handAngle * Math.PI) / 180)}
+                          r="5"
+                          fill="white"
+                          style={{ filter: "drop-shadow(0 0 6px white)" }}
+                        />
+
+                        <text x={center} y={center - 12} fill="white" fontSize="42px" fontWeight="600"
+                          textAnchor="middle" dominantBaseline="central" letterSpacing="-1px">
+                          {minutesToTime(animatedMinutes)}
+                        </text>
+                      </svg>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="feature-visual-frame">
-                  <img src={f.img} alt={f.title} className="feature-image" />
-                </div>
-
               </div>
-            );
-          })}
+            </div>
+
+            <div className="demo-card">
+              <button onClick={() => router.push('/features/views#todo-view')}>Learn more</button>
+              <h3 className="demo-card-title">Classic todo</h3>
+              <div className="demo-content-body" style={{ gap: "12px", justifyContent: "flex-start", overflowY: "auto" }}>
+                {DEMO_TASKS.map((task) => (
+                  <div
+                    key={task.id}
+                    style={{
+                      padding: "16px",
+                      border: "1px solid #1a1a1a",
+                      borderRadius: "12px",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "12px",
+                      backgroundColor: "#0b0e1a",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div style={{ width: "4px", minHeight: "32px", backgroundColor: task.color, borderRadius: "2px", opacity: 0.8 }} />
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: "600", color: "#fff" }}>
+                        {task.name}
+                      </p>
+                      <p style={{ margin: 0, fontSize: "12px", color: "#a3a3a3", letterSpacing: "0.5px" }}>
+                        {`${String(Math.floor(task.start / 60)).padStart(2, '0')}:${String(task.start % 60).padStart(2, '0')} – ${String(Math.floor(task.end / 60)).padStart(2, '0')}:${String(task.end % 60).padStart(2, '0')}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="demo-card">
+              <button onClick={() => router.push('/features/views#calendar-view')}>Learn more</button>
+              <h3 className="demo-card-title">Calendar</h3>
+              <div className="demo-content-body" style={{ overflowX: "auto", overflowY: "auto", justifyContent: "flex-start" }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "50px repeat(7, minmax(80px, 1fr))",
+                    border: "1px solid #1e2638",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    fontSize: "12px",
+                    minWidth: "600px"
+                  }}
+                >
+                  <div
+                    style={{
+                      borderRight: "1px solid #1e2638",
+                      borderBottom: "1px solid #1e2638",
+                      background: "#111420",
+                    }}
+                  />
+
+                  {[
+                    { day: "MON", date: "12/10", active: false },
+                    { day: "TUE", date: "12/11", active: true },
+                    { day: "WED", date: "12/12", active: false },
+                    { day: "THU", date: "12/13", active: false },
+                    { day: "FRI", date: "12/14", active: false },
+                    { day: "SAT", date: "12/15", active: false },
+                    { day: "SUN", date: "12/16", active: false },
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        height: 48,
+                        padding: "6px",
+                        textAlign: "center",
+                        fontWeight: 600,
+                        borderRight: "1px solid #1e2638",
+                        borderBottom: "1px solid #1e2638",
+                        background: "#111420",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      <div style={{ color: item.active ? "#818cf8" : "#a3a3a3" }}>{item.day}</div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: item.active ? "#818cf8" : "#525252",
+                          marginTop: 2,
+                        }}
+                      >
+                        {item.date}
+                      </div>
+                    </div>
+                  ))}
+
+                  {[8, 9, 10, 11, 12, 13, 14].map((hour) => (
+                    <React.Fragment key={hour}>
+                      <div
+                        style={{
+                          height: 54,
+                          padding: "6px",
+                          textAlign: "right",
+                          fontSize: 11,
+                          color: "#525252",
+                          background: "#111420",
+                          borderRight: "1px solid #1e2638",
+                          borderBottom: "1px solid #1e2638",
+                          boxSizing: "border-box",
+                        }}
+                      >
+                        {`${String(hour).padStart(2, "0")}:00`}
+                      </div>
+
+                      {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => {
+                        const dummyTasksSlot = DEMO_TASKS.filter((task) => {
+                          const taskStartHour = Math.floor(task.start / 60);
+                          const taskDayIndex = 1;
+                          return taskStartHour === hour && taskDayIndex === dayIndex;
+                        });
+
+                        return (
+                          <div
+                            key={dayIndex}
+                            style={{
+                              position: "relative",
+                              height: 54,
+                              borderRight: "1px solid #1e2638",
+                              borderBottom: "1px solid #1e2638",
+                              background: "#0B0E1A",
+                              boxSizing: "border-box",
+                            }}
+                          >
+                            {dummyTasksSlot.map((task) => {
+                              const durationMinutes = task.end - task.start;
+                              const topOffset = (task.start % 60) * (54 / 60);
+                              const taskHeight = (durationMinutes / 60) * 54;
+
+                              return (
+                                <div
+                                  key={task.id}
+                                  style={{
+                                    position: "absolute",
+                                    top: `${topOffset}px`,
+                                    left: 2,
+                                    right: 2,
+                                    height: `${taskHeight - 4}px`,
+                                    zIndex: 2,
+                                    overflow: "hidden",
+                                    textAlign: "left",
+                                    padding: "4px 6px",
+                                    borderLeft: `3px solid ${task.color}`,
+                                    borderRadius: "4px",
+                                    background: "#161b2e",
+                                    color: "white",
+                                    boxSizing: "border-box",
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      display: "block",
+                                      fontSize: 11,
+                                      fontWeight: 600,
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                    }}
+                                  >
+                                    {task.name}
+                                  </span>
+                                  <span
+                                    style={{
+                                      display: "block",
+                                      fontSize: 9,
+                                      color: "#a3a3a3",
+                                      marginTop: 2,
+                                    }}
+                                  >
+                                    {`${Math.round((durationMinutes / 60) * 10) / 10}h`}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="demo-card">
+              <h3 className="demo-card-title">One task & pomodoro</h3>
+              {(() => {
+                const DURATION_SECONDS = 60 * 60; // 60 minutes
+                const TASK = { name: "Work", color: "#38bdf8" };
+
+                const [secondsLeft, setSecondsLeft] = React.useState(DURATION_SECONDS);
+
+                React.useEffect(() => {
+                  const timer = setInterval(() => {
+                    setSecondsLeft((prev) => (prev <= 1 ? DURATION_SECONDS : prev - 1));
+                  }, 1000);
+                  return () => clearInterval(timer);
+                }, []);
+
+                const secondsElapsed = DURATION_SECONDS - secondsLeft;
+                const progressPercent = (secondsElapsed / DURATION_SECONDS) * 100;
+
+                const radius = 140;
+                const circumference = 2 * Math.PI * radius;
+                const strokeDashoffset = circumference - (secondsElapsed / DURATION_SECONDS) * circumference;
+
+                const formatTimeLeft = (totalSecs: number) => {
+                  if (totalSecs <= 0) return "00:00";
+                  const mins = Math.floor(totalSecs / 60);
+                  const secs = totalSecs % 60;
+                  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+                };
+
+                return (
+                  <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <h1 style={{ 
+                      fontSize: "48px", 
+                      fontFamily: "var(--font-geist-sans), sans-serif", 
+                      letterSpacing: "2.5px", 
+                      textTransform: "uppercase", 
+                      margin: "0 0 40px 0", 
+                      color: "#ffffff" 
+                    }}>
+                      {TASK.name}
+                    </h1>
+
+                    <div style={{ position: "relative", width: "320px", height: "320px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg style={{ transform: "rotate(-90deg)", width: "100%", height: "100%" }}>
+                        <circle
+                          cx="160"
+                          cy="160"
+                          r={radius}
+                          fill="transparent"
+                          stroke="#1a1a1a"
+                          strokeWidth="8"
+                        />
+                        <circle
+                          cx="160"
+                          cy="160"
+                          r={radius}
+                          fill="transparent"
+                          stroke={TASK.color}
+                          strokeWidth="8"
+                          strokeDasharray={circumference}
+                          strokeDashoffset={strokeDashoffset}
+                          strokeLinecap="round"
+                          style={{ transition: "stroke-dashoffset 0.2s ease-out" }}
+                        />
+                      </svg>
+                      <div style={{ position: "absolute", display: "flex", flexDirection: "column", alignItems: "center", color: "#ffffff" }}>
+                        <span style={{ fontSize: "48px", fontWeight: "bold", fontVariantNumeric: "tabular-nums" }}>
+                          {formatTimeLeft(secondsLeft)}
+                        </span>
+                        <span style={{ fontSize: "11px", opacity: 0.5, letterSpacing: "1px", marginTop: "4px" }}>
+                          {Math.floor(progressPercent)}% COMPLETE
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+          </div>
         </div>
       </section>
 
       <section data-nosnippet style={{ 
-        padding: "80px 0", 
+        padding: "80px 20px", 
         backgroundColor: "#0B0F1A", 
-        overflow: "hidden", 
-        width: "100%" 
-        }}>
-        <h2 style={{ 
+        width: "100%",
+        boxSizing: "border-box"
+      }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <h2 style={{ 
             textAlign: "center", 
             fontSize: "12px", 
             letterSpacing: "3px", 
             textTransform: "uppercase", 
-            marginBottom: "40px",
-            color: "#fff"
-        }}>
-            Feedback from current users
-        </h2>
+            marginBottom: "12px",
+            color: "#818cf8"
+          }}>
+            Community Feedback
+          </h2>
 
-        <style>{`
-            @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(calc(-350px * 5)); }
-            }
-            .scroll-container {
-            display: flex;
-            width: calc(350px * 10);
-            animation: scroll 30s linear infinite;
-            }
-            .scroll-container:hover {
-            animation-play-state: paused;
-            }
-        `}</style>
+          <p style={{
+            textAlign: "center",
+            fontSize: "28px",
+            fontWeight: "600",
+            color: "#fff",
+            margin: "0 0 40px 0"
+          }}>
+            What users are saying
+          </p>
 
-        <div className="scroll-container">
+          <div           
+            style={{
+              display: "flex",
+              gap: "20px",
+              overflowX: "auto",
+              paddingBottom: "16px",
+              scrollSnapType: "x mandatory"
+            }}
+          >
             {[
-            { name: "Alex R.", review: "I have terrible ADHD and numbers on a digital calendar don't mean anything to my brain. Seeing a physical block of color actually works." },
-            { name: "Sarah M.", review: "Simple layout. The single-task focus screen stops me from jumping between tabs when I get distracted." },
-            { name: "Jordan K.", review: "It syncs across all my devices seamlessly." },
-            { name: "Elena V.", review: "The round design makes sense to me. Standard line items always made me feel like I was falling behind." },
-            { name: "Marcus T.", review: "I usually open planning apps, use them for three days, and forget they exist. I've used this one every morning for a month." }
-            ].concat([
-            { name: "Alex R.", review: "I have terrible ADHD and numbers on a digital calendar don't mean anything to my brain. Seeing a physical block of color actually works." },
-            { name: "Sarah M.", review: "Simple layout. The single-task focus screen stops me from jumping between tabs when I get distracted." },
-            { name: "Jordan K.", review: "It syncs across all my devices seamlessly." },
-            { name: "Elena V.", review: "The round design makes sense to me. Standard line items always made me feel like I was falling behind." },
-            { name: "Marcus T.", review: "I usually open planning apps, use them for three days, and forget they exist. I've used this one every morning for a month." }
-            ]).map((r, i) => (
-            <div key={i} style={{
-                width: "320px",
-                margin: "0 15px",
-                padding: "30px",
-                backgroundColor: "#111",
-                borderRadius: "12px",
-                border: "1px solid #222",
-                flexShrink: 0
-            }}>
-                <div style={{ color: "#eab308", marginBottom: "15px", fontSize: "14px" }}>
-                ★★★★★
-                </div>
-                <p style={{ color: "#fff", fontSize: "15px", lineHeight: "1.6", marginBottom: "20px", minHeight: "80px" }}>
-                "{r.review}"
-                </p>
-                <p style={{ color: "#818cf8", fontSize: "13px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "1px" }}>
-                — {r.name}
-                </p>
-            </div>
-            ))}
-        </div>
-    </section>
+              { 
+                name: "u/steepbuilding24", 
+                review: "The clock visualization idea is actually pretty clever, most task apps just copy each other with the same list format.",
+                source: "r/micro_saas"
+              },
+              { 
+                name: "u/Livid_Finding", 
+                review: "I like the minimalist approach! Does your app sync with external sources? I support your app.",
+                source: "r/ProductivityApps"
+              },
+              { 
+                name: "u/CockatooCocktail", 
+                review: "An artisanal piece of software, how unique! You're up to something great!",
+                source: "r/SaaS"
+              },
+            ].map((r, i) => (
+              <div key={i} style={{
+                minWidth: "300px",
+                maxWidth: "360px",
+                padding: "28px",
+                backgroundColor: "#111420",
+                borderRadius: "16px",
+                border: "1px solid #1e2638",
+                flexShrink: 0,
+                scrollSnapAlign: "start",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between"
+              }}>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <span style={{ color: "#ff4500", fontSize: "12px", fontWeight: "600" }}>
+                      {r.source}
+                    </span>
+                  </div>
 
-      <section style={{ padding: "100px 20px", maxWidth: "900px", margin: "0 auto" }}>
-        <h2 style={{ fontSize: "32px", marginBottom: "40px", textAlign: "left", fontWeight: "600" }}>Questions & Answers</h2>
-        {[
-          { 
-            q: "How does this help with time blindness?", 
-            a: "When tasks are just lines of text on a screen, it is easy to forget they take up real space in the physical world. Arcadia scales your events into proportional shapes around a 24-hour dial. When you look at the screen, you can see if an upcoming task takes up a small slice of your afternoon or half of it." 
-          },
-          { 
-            q: "Where is my calendar data kept?", 
-            a: "Everything links to an online account so your data matches across your laptop and phone."
-          },
-          { 
-            q: "Does this work on mobile devices?", 
-            a: "Yes. The site reshapes itself for mobile layouts." 
-          },
-          { 
-            q: "How do I make changes to a task?", 
-            a: "Click or tap directly on the slice of time you want to alter on the clock wheel. A window pops up where you can type a new title, drag the handles to change the duration, swap the color indicator, or remove it entirely." 
-          }
-        ].map((item, i) => (
-          <div key={i} style={{ borderBottom: "1px solid #222", padding: "30px 0" }}>
-            <h3 style={{ fontWeight: "600", fontSize: "18px", marginBottom: "12px", color: "#818cf8" }}>{item.q}</h3>
-            <p style={{ color: "#a3a3a3", fontSize: "16px", lineHeight: "1.6" }}>{item.a}</p>
+                  <p style={{ color: "#fff", fontSize: "15px", lineHeight: "1.6", margin: "0 0 24px 0" }}>
+                    "{r.review}"
+                  </p>
+                </div>
+
+                <p style={{ color: "#818cf8", fontSize: "13px", fontWeight: "600", margin: 0, fontFamily: "monospace" }}>
+                  {r.name}
+                </p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </section>
 
-      <section style={{ padding: "120px 20px", textAlign: "center" }}>
+      <section style={{ padding: "120px 0px", textAlign: "center" }}>
         <div style={{ 
-          backgroundColor: "#111", 
+          backgroundColor: "#111",
           padding: "80px 40px", 
-          borderRadius: "12px", 
-          border: "1px solid #222",
-          maxWidth: "1000px",
-          margin: "0 auto"
+          width: "100%",
+          boxSizing: "border-box"
         }}>
-          <h2 style={{ fontSize: "40px", fontWeight: "600", marginBottom: "20px" }}>Set up your wheel.</h2>
-          <p style={{ fontSize: "18px", marginBottom: "40px", color: "#a3a3a3" }}>Create an account to see your schedule mapped out as a visual day cycle.</p>
+          <h2 style={{ fontSize: "40px", fontWeight: "600", marginBottom: "20px" }}>Get started today.</h2>
           <div data-nosnippet>
             <button 
               onClick={() => router.push('/dashboard')}
@@ -469,7 +684,7 @@ export default function LandingPage() {
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              SIGN UP FOR FREE
+              GET ARCADIA FREE
             </button>
           </div>
         </div>
