@@ -24,10 +24,14 @@ const cuprum = Cuprum({
 
 export const metadata: Metadata = {
   title: "Arcadia",
-  description: "Advanced Time Tracking System",
+  description: "Visualize your daily tasks on a 24-hour clock",
   verification: {
     google: "uTOvvZgIxWCZPNdoDdipI_vEzWJTg1cSJzXlel6UkJk"
-  }
+  },
+  metadataBase: new URL("https://arcadia.vercel.app"),
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
@@ -36,6 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+
     <html
       lang="en"
       className={`${cuprum.variable} h-full antialiased`}
