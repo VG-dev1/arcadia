@@ -11,7 +11,7 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from 'firebase/auth';
-import { doc, updateDoc, deleteDoc, collection, getDocs, deleteDoc as deleteFirestoreDoc } from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc, collection, getDocs, deleteDoc as deleteFirestoreDoc, setDoc } from 'firebase/firestore';
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <div style={{ marginBottom: "28px" }}>
@@ -90,10 +90,22 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedViews, setSelectedViews] = useState(["Clock", "Todo", "Insights", "Calendar", "Kanban"]);
+  const views = ["Clock", "Todo", "Insights", "Calendar", "Kanban"];
+  const toggleView = (view : string) => {
+    setSelectedViews((current) =>
+      current.includes(view)
+        ? current.filter((item) => item !== view)
+        : [...current, view]
+    );
+  };
+
   useEffect(() => {
     if (userProfile) {
       setUsername(userProfile.username || '');
       setEmail(userProfile.email || '');
+      setSelectedViews(userProfile.pinnedViews || ["Clock", "Todo", "Insights", "Calendar", "Kanban"]);
     }
   }, [userProfile]);
 
@@ -130,6 +142,16 @@ export default function SettingsPage() {
       if (newPassword) {
         if (newPassword.length < 6) { setError('Password must be at least 6 characters.'); setSaving(false); return; }
         await updatePassword(user!, newPassword);
+      }
+
+      if (selectedViews !== userProfile?.pinnedViews && user) {
+        await setDoc(
+          doc(db, "users", user.uid),
+          {
+            pinnedViews: selectedViews,
+          },
+          { merge: true }
+        );
       }
 
       router.push('/dashboard');
@@ -272,6 +294,66 @@ export default function SettingsPage() {
               autoComplete="current-password"
             />
           </Field>
+
+          <div style={{ marginBottom: "28px", position: "relative" }}>
+            <label style={{ display: "block", fontSize: "13px", color: "#fff", marginBottom: "8px" }}>
+              Pinned task views
+            </label>
+
+            <div
+              onClick={() => setIsOpen(!isOpen)}
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #fff",
+                borderRadius: "6px",
+                color: "white",
+                padding: "10px 12px",
+                fontSize: "15px",
+                fontFamily: "var(--font-geist-sans), sans-serif",
+                cursor: "pointer",
+              }}
+            >
+              {selectedViews.length > 0 ? selectedViews.join(", ") : "None selected"}
+            </div>
+
+            {isOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  right: 0,
+                  marginTop: "6px",
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #fff",
+                  borderRadius: "6px",
+                  overflow: "hidden",
+                  zIndex: 10,
+                }}
+              >
+                {views.map((view) => (
+                  <div
+                    key={view}
+                    onClick={() => toggleView(view)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 12px",
+                      color: "white",
+                      fontSize: "15px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span>{view}</span>
+                    <span>{selectedViews.includes(view) ? "✓" : ""}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {error && (
             <p style={{ color: "#ef4444", fontSize: "13px", margin: "-8px 0 20px 0" }}>

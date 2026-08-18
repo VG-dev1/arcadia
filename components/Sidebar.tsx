@@ -2,12 +2,14 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useAuth } from '@/lib/AuthContext';
 
 const SIDEBAR_ROUTES = ["/dashboard", "/insights", "/todo", "/calendar", "/kanban"];
 
 const NAV_ITEMS = [
   {
     label: "Dashboard",
+    id: "Clock",
     path: "/dashboard",
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -22,6 +24,7 @@ const NAV_ITEMS = [
   },
   {
     label: "Insights",
+    id: "Insights",
     path: "/insights",
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -38,6 +41,7 @@ const NAV_ITEMS = [
   },
   {
     label: "Todo List",
+    id: "Todo",
     path: "/todo",
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -78,6 +82,7 @@ const NAV_ITEMS = [
   },
   {
     label: "Calendar",
+    id: "Calendar",
     path: "/calendar",
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -166,6 +171,7 @@ const NAV_ITEMS = [
   },
   {
     label: "Kanban Board",
+    id: "Kanban",
     path: "/kanban",
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -219,6 +225,8 @@ const NAV_ITEMS = [
 ];
 
 export function Sidebar() {
+  const { userProfile } = useAuth();
+
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -249,6 +257,11 @@ export function Sidebar() {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  const pinnedViews = userProfile?.pinnedViews ?? [];
+  const customizedNavItems = pinnedViews
+    .map(id => NAV_ITEMS.find(item => item.id === id))
+    .filter((item): item is (typeof NAV_ITEMS)[number] => item !== undefined);
 
   return (
   <>
@@ -371,7 +384,7 @@ export function Sidebar() {
         `}</style>
 
         <aside className="sidebar-desktop">
-          {NAV_ITEMS.map((item) => (
+          {customizedNavItems.map((item) => (
             <button
               key={item.path}
               className={`sidebar-nav-item${pathname === item.path ? " active" : ""}`}
@@ -398,7 +411,7 @@ export function Sidebar() {
         />
 
         <aside className={`sidebar-drawer${isOpen ? " open" : ""}`}>
-          {NAV_ITEMS.map((item) => (
+          {customizedNavItems.map((item) => (
             <button
               key={item.path}
               className={`sidebar-nav-item${pathname === item.path ? " active" : ""}`}

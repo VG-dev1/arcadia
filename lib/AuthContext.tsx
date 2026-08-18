@@ -44,6 +44,7 @@ export interface UserProfile {
   email: string | null;
   username?: string;
   createdAt?: any;
+  pinnedViews: Array<string>;
 }
 
 interface AuthContextType {
@@ -101,7 +102,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           uid, 
           email: auth.currentUser?.email || null, 
           username: auth.currentUser?.displayName || auth.currentUser?.email?.split('@')[0] || 'User',
-          createdAt: new Date() 
+          createdAt: new Date(),
+          pinnedViews: ["Clock", "Todo", "Insights", "Calendar", "Kanban"]
         };
         await setDoc(userDocRef, initialProfile);
         setUserProfile(initialProfile);
