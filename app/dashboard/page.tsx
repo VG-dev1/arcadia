@@ -107,7 +107,7 @@ const getDateLabel = (d: Date, today: Date): string => {
   if (dk === todayK) return "Today";
   if (dk === dateKey(yesterday)) return "Yesterday";
   if (dk === dateKey(tomorrow)) return "Tomorrow";
-  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" }).toUpperCase();
+  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
 };
 
 const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
@@ -171,7 +171,7 @@ const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ o
 );
 
 const ModalLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <label style={{ display: "block", fontSize: "11px", letterSpacing: "1.5px", color: "#fff", marginBottom: "8px", textTransform: "uppercase" }}>
+  <label style={{ display: "block", fontSize: "13px", color: "#fff", marginBottom: "8px" }}>
     {children}
   </label>
 );
@@ -293,7 +293,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                 background: "none", border: "1px solid #fff", color: "#fff",
                 padding: "8px 16px", borderRadius: "6px", cursor: "pointer",
                 fontSize: "12px", fontFamily: "var(--font-geist-sans), sans-serif",
-                letterSpacing: "1px", textTransform: "uppercase",
+                letterSpacing: "1px",
               }}
             >
               + Add Category
@@ -410,7 +410,6 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                 padding: "10px 28px", borderRadius: "6px", cursor: "pointer",
                 fontSize: "13px", fontWeight: "600",
                 fontFamily: "var(--font-geist-sans), sans-serif", letterSpacing: "1px",
-                textTransform: "uppercase",
               }}
             >
               Save
@@ -620,7 +619,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               {cat.name}
             </option>
           ))}
-          <option value="NEW_CATEGORY_TRIGGER" style={{ color: "#818cf8", fontWeight: "600" }}>
+          <option value="NEW_CATEGORY_TRIGGER" style={{ color: "#80ef08", fontWeight: "600" }}>
             Manage categories...
           </option>
         </select>
@@ -705,7 +704,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               </svg>
             )}
           </div>
-          <span style={{ fontSize: "11px", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+          <span style={{ fontSize: "13px" }}>
             Repeat
           </span>
         </div>
@@ -790,7 +789,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 router.push(`/focus?id=${initial.id}&date=${currentKey}${originParam}`);
               }}
               style={{
-                background: "#818cf8", border: "none",
+                background: "#80ef08", border: "none",
                 color: "white", padding: "10px 22px",
                 borderRadius: "6px", cursor: "pointer",
                 fontSize: "13px", fontWeight: "600",
@@ -1164,7 +1163,7 @@ const ClockAppContent: React.FC = () => {
   const circumference = 2 * Math.PI * radius;
   const arcWidth = (clockSize / 520) * 34;
 
-  const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const dayName = days[viewedDate.getDay()];
   const timeString = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
   const dateLabel = getDateLabel(viewedDate, today);
@@ -1199,7 +1198,7 @@ const ClockAppContent: React.FC = () => {
     background: "none",
     border: "1px solid #fff",
     color: "#fff",
-    padding: "8px 16px",
+    padding: "9px 15px",
     borderRadius: "6px",
     cursor: "pointer",
     fontSize: "13px",
@@ -1250,8 +1249,7 @@ const ClockAppContent: React.FC = () => {
         <div className="summary-col">
           <div style={{ marginBottom: "40px" }}>
             <p style={{
-              fontSize: "11px", letterSpacing: "2.5px", color: "#fff",
-              textTransform: "uppercase", margin: "0 0 10px 0",
+              fontSize: "13px", color: "#fff", margin: "0 0 10px 0",
             }}>
               {dayName}
             </p>
@@ -1262,16 +1260,16 @@ const ClockAppContent: React.FC = () => {
               {dateLabel}
             </p>
             <div className="nav-group" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-              <button style={navBtnStyle} onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
+              <button className="button buttonSecondary" onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
               {dayOffset !== 0 && (
-                <button style={navBtnStyle} onClick={() => setDayOffset(0)}>Today</button>
+                <button className="button buttonSecondary" onClick={() => setDayOffset(0)}>Today</button>
               )}
-              <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
-              <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
-              <button style={navBtnStyle} onClick={async () => { setShareError(''); if (!await checkExistingTemplate()) setShareLink(''); setShowShareModal(true); }}>Share</button>
+              <button className="button buttonSecondary" onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
+              <button className="button buttonSecondary" onClick={() => setShowDateSelect(true)}>Jump To Date</button>
+              <button className="button buttonSecondary" onClick={async () => { setShareError(''); if (!await checkExistingTemplate()) setShareLink(''); setShowShareModal(true); }}>Share</button>
             </div>
           </div>
-          <p>{currentTask?.name ? `Current task: ${currentTask?.name}` : "All clear! Sit back and relax!"}</p>
+          <p style={{ border: "1px solid #fff", padding: "9px 15px", borderRadius: "6px" }}>{currentTask?.name ? `Current task: ${currentTask?.name}` : "All clear! Sit back and relax!"}</p>
           <div style={{ height: "1px", backgroundColor: "#1a1a1a", marginBottom: "32px" }} />   
         </div>
 
@@ -1370,8 +1368,8 @@ const ClockAppContent: React.FC = () => {
               {isToday ? timeString : dayName}
             </text>
             <text x={center} y={center + ((clockSize / 520) * 32)} fill="#fff" fontSize={`${(clockSize / 520) * 16}px`}
-              textAnchor="middle" letterSpacing="4px" fontWeight="600">
-              {isToday ? dayName : viewedDate.toLocaleDateString(undefined, { month: "short", day: "numeric" }).toUpperCase()}
+              textAnchor="middle" fontWeight="600">
+              {isToday ? dayName : viewedDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
             </text>
           </svg>
         </div>
@@ -1380,17 +1378,11 @@ const ClockAppContent: React.FC = () => {
           <button
             onClick={() => setShowAdd(true)}
             disabled={isSaving}
-            style={{
-              backgroundColor: "white", color: "black", border: "none",
-              padding: "12px 28px", borderRadius: "6px", fontSize: "13px",
-              fontWeight: "600", fontFamily: "var(--font-geist-sans), sans-serif",
-              letterSpacing: "1px", cursor: isSaving ? "wait" : "pointer", textTransform: "uppercase",
-              display: "block", marginBottom: "16px", opacity: isSaving ? 0.6 : 1,
-            }}
+            className="button buttonPrimary"
           >
             {isSaving ? "SAVING..." : "+ Add Task"}
           </button>
-          <p style={{ fontSize: "12px", color: "#fff", lineHeight: "1.6", maxWidth: "200px", margin: 0 }}>
+          <p style={{ fontSize: "12px", color: "#fff", lineHeight: "1.6", maxWidth: "200px", marginTop: 12 }}>
             Click an arc on the clock to edit or delete a task, or right click to change the status of it.
           </p>
         </div>
@@ -1451,7 +1443,7 @@ const ClockAppContent: React.FC = () => {
               <p style={{ margin: "0 0 12px 0", color: "#fff", lineHeight: 1.6 }}>
                 Your template is ready. Share this link:
               </p>
-              <a href={shareLink} style={{ display: "block", color: "#818cf8", wordBreak: "break-all", marginBottom: "24px" }}>
+              <a href={shareLink} style={{ display: "block", color: "#80ef08", wordBreak: "break-all", marginBottom: "24px" }}>
                 {shareLink}
               </a>
               <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>

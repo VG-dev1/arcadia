@@ -9,7 +9,7 @@ export default function FeaturesViewsPage() {
   const views = [
     {
       id: "clock-view",
-      badge: "01 / ARCADIA'S FAMOUS CLOCK VIEW",
+      badge: "",
       title: "Clock & arcs view",
       description: "Perfect for those with a feeling of lack of time and for those suffering from time blindness.",
       imgSrc: "/clock-view.png",
@@ -17,7 +17,7 @@ export default function FeaturesViewsPage() {
     },
     {
       id: "todo-view",
-      badge: "02 / THE CLASSIC TODO LIST",
+      badge: "",
       title: "Todo list we all know",
       description: "Perfect for those wanting the simplest view, despite us encouraging the use of other views.",
       imgSrc: "/todo-view.png",
@@ -25,7 +25,7 @@ export default function FeaturesViewsPage() {
     },
     {
       id: "calendar-view",
-      badge: "03 / THE CLASSIC CALENDAR",
+      badge: "",
       title: "Minimalistic weekly calendar",
       description: "Monitor real-time session countdowns, active momentum, and monthly insights to stay on top of your goals.",
       imgSrc: "/calendar-view.png",
@@ -136,7 +136,7 @@ export default function FeaturesViewsPage() {
                 <span style={{ 
                   fontSize: "12px", 
                   letterSpacing: "3px", 
-                  color: "#818cf8", 
+                  color: "#80ef08", 
                   fontWeight: "600",
                   display: "block",
                   marginBottom: "12px"
@@ -192,9 +192,6 @@ export default function FeaturesViewsPage() {
           <h2 style={{ fontSize: "40px", fontWeight: "600", marginBottom: "20px" }}>
             Get started today
           </h2>
-          <p style={{ fontSize: "18px", marginBottom: "40px", color: "#a3a3a3" }}>
-            Experience your tasks visually and master your daily schedule.
-          </p>
           <div data-nosnippet>
             <button 
               onClick={() => router.push('/dashboard')}
@@ -202,17 +199,14 @@ export default function FeaturesViewsPage() {
                 backgroundColor: "white", 
                 color: "black", 
                 border: "none",
-                padding: "18px 48px", 
+                padding: "9px 15px", 
                 borderRadius: "6px", 
                 fontSize: "16px",
                 fontWeight: "600", 
-                cursor: "pointer", 
-                transition: "transform 0.2s ease"
+                cursor: "pointer"
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              GET ARCADIA FREE
+              Try Arcadia for free
             </button>
           </div>
         </div>

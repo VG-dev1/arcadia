@@ -127,7 +127,7 @@ export default function TemplatesPage() {
     <div style={{ minHeight: '100vh', backgroundColor: '#0B0F1A', color: 'white', fontFamily: 'var(--font-geist-sans), sans-serif', padding: '40px 24px' }}>
       <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
         <div style={{ marginBottom: '28px' }}>
-          <p style={{ fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', margin: '0 0 10px 0', color: '#fff' }}>
+          <p style={{ fontSize: '13px', margin: '0 0 10px 0', color: '#fff' }}>
             Public templates
           </p>
           <h1 style={{ margin: 0, fontSize: '40px', fontWeight: 600, letterSpacing: '-0.5px' }}>

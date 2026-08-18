@@ -37,6 +37,25 @@ export default function LandingPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const TOTAL_DEMOS = 4;
+  const [activeDemo, setActiveDemo] = useState(0);
+  const [demoPaused, setDemoPaused] = useState(false);
+  const [demoTick, setDemoTick] = useState(0);
+
+  useEffect(() => {
+    if (demoPaused) return;
+    const interval = setInterval(() => {
+      setActiveDemo((prev) => (prev + 1) % TOTAL_DEMOS);
+      setDemoTick((t) => t + 1);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [demoPaused, demoTick]);
+
+  const goToDemo = (index: number) => {
+    setActiveDemo(((index % TOTAL_DEMOS) + TOTAL_DEMOS) % TOTAL_DEMOS);
+    setDemoTick((t) => t + 1);
+  };
+
   useEffect(() => {
     if (!loading && user) {
         router.push('/dashboard');
@@ -78,23 +97,33 @@ export default function LandingPage() {
           justify-content: center;
         }
 
-        .demo-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: 32px;
+        .demo-carousel {
+          position: relative;
           width: 100%;
-          align-items: stretch;
+          max-width: 1040px;
+          margin: 0 auto;
+          overflow: hidden;
+        }
+
+        .demo-grid {
+          display: flex;
+          width: 100%;
+          transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+          gap: 12px;
         }
 
         .demo-card {
           display: flex;
           flex-direction: column;
-          background: #111420;
+          flex: 0 0 100%;
+          max-width: 720px;
+          margin-left: auto;
+          margin-right: auto;
           border: 1px solid #1e2638;
           border-radius: 20px;
-          padding: 24px;
+          padding: 12px;
           box-sizing: border-box;
-          height: 580px;
+          height: 540px;
           overflow: hidden;
         }
 
@@ -115,19 +144,82 @@ export default function LandingPage() {
           overflow: hidden;
         }
 
-        @media (max-width: 768px) {
-          .demo-grid {
-            grid-template-columns: 1fr;
-          }
+        .demo-learn-more {
+          background: none;
+          border: 1px solid #fff;
+          color: #fff;
+          font-size: 16px;
+          font-weight: 600;
+          padding: 9px 15px;
+          border-radius: 6px;
+          cursor: pointer;
+          align-self: flex-start;
+          flex-shrink: 0;
+          margin-bottom: 18px;
+        }
 
+        .carousel-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 5;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: 1px solid #2a3148;
+          background: rgba(17, 20, 32, 0.9);
+          color: #ffffff;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .carousel-arrow.prev {
+          left: 12px;
+        }
+
+        .carousel-arrow.next {
+          right: 12px;
+        }
+
+        .carousel-dots {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          margin-top: 28px;
+        }
+
+        .carousel-dot {
+          width: 8px;
+          height: 8px;
+          padding: 0;
+          border: none;
+          border-radius: 50%;
+          background: #2a3148;
+          cursor: pointer;
+          transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .carousel-dot.active {
+          background: #80ef08;
+          transform: scale(1.3);
+        }
+
+        @media (max-width: 768px) {
           .demo-card {
             padding: 16px;
-            height: auto;
-            min-height: 480px;
+            height: 540px;
           }
 
           .hero-right-wrapper {
             max-width: 290px;
+          }
+
+          .carousel-arrow {
+            width: 36px;
+            height: 36px;
           }
         }
       `}</style>
@@ -143,7 +235,7 @@ export default function LandingPage() {
       }}>
         <div className="hero-left" style={{ zIndex: 1 }}>
           <h1 style={{ fontSize: "clamp(32px, 5.5vw, 76px)", fontWeight: "600", lineHeight: "1.1", margin: "0 0 24px 0", letterSpacing: "-2px" }}>
-            One day. Many ways to <span style={{ color: "#818cf8" }}>see it.</span>
+            One day. Many ways to <span style={{ color: "#80ef08" }}>see it.</span>
           </h1>
           <p style={{ fontSize: "18px", color: "#a3a3a3", maxWidth: "600px", margin: "0 auto 40px", lineHeight: "1.6" }}>
             See your tasks as a clock, calendar, list, or focus timer. All synced together in one workspace.
@@ -154,53 +246,104 @@ export default function LandingPage() {
               onClick={() => router.push('/dashboard')}
               style={{
                 backgroundColor: "white", color: "black", border: "none",
-                padding: "18px 44px", borderRadius: "6px", fontSize: "16px",
-                fontWeight: "600", cursor: "pointer", transition: "transform 0.2s ease",
+                padding: "9px 15px", borderRadius: "6px", fontSize: "16px",
+                fontWeight: "600", cursor: "pointer"
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              TRY ARCADIA FREE
+              Try Arcadia for free
             </button>
             <button
               onClick={() => router.push('/features')}
               style={{
                 backgroundColor: "none", color: "white", border: "1px solid #fff",
-                padding: "18px 44px", borderRadius: "6px", fontSize: "16px",
-                fontWeight: "600", cursor: "pointer", transition: "transform 0.2s ease",
+                padding: "9px 15px", borderRadius: "6px", fontSize: "16px",
+                fontWeight: "600", cursor: "pointer"
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              SEE FEATURES
+              Explore features
             </button>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <p style={{ fontSize: "28px", fontWeight: "600", color: "#fff", margin: 0 }}>
+            You don't lack time; you lack a visual version of it
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "30px" }}>
+            <div style={{ border: "1px solid #1e2638", borderRadius: "12px", padding: "14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "28px", height: "28px", border: "1px solid #1e2638", borderRadius: "50%" }}>
+                  <span>✕</span>
+                </div>
+                <p style={{ fontSize: "16px", margin: 0 }}>Flat todo lists</p>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "28px", height: "28px", border: "1px solid #1e2638", borderRadius: "50%" }}>
+                  <span>✓</span>
+                </div>
+                <p style={{ fontSize: "16px", margin: 0 }}>Time visualisation</p>
+              </div>
+            </div>
+
+            <div style={{ border: "1px solid #1e2638", borderRadius: "12px", padding: "14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "28px", height: "28px", border: "1px solid #1e2638", borderRadius: "50%" }}>
+                  <span>✕</span>
+                </div>
+                <p style={{ fontSize: "16px", margin: 0 }}>Multiple task-based apps</p>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "28px", height: "28px", border: "1px solid #1e2638", borderRadius: "50%" }}>
+                  <span>✓</span>
+                </div>
+                <p style={{ fontSize: "16px", margin: 0 }}>Only one</p>
+              </div>
+            </div>
+
+            <div style={{ border: "1px solid #1e2638", borderRadius: "12px", padding: "14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "28px", height: "28px", border: "1px solid #1e2638", borderRadius: "50%" }}>
+                  <span>✕</span>
+                </div>
+                <p style={{ fontSize: "16px", margin: 0 }}>Overwhelming design</p>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "28px", height: "28px", border: "1px solid #1e2638", borderRadius: "50%" }}>
+                  <span>✓</span>
+                </div>
+                <p style={{ fontSize: "16px", margin: 0 }}>Calm and minimalistic design</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <section style={{
         width: "100%",
-        backgroundColor: "#111",
-        padding: "80px 40px",
+        padding: "30px 40px",
         boxSizing: "border-box",
-        borderTop: "1px solid #1a1a1a",
-        borderBottom: "1px solid #1a1a1a"
       }}>
         <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
           
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "12px", letterSpacing: "3px", textTransform: "uppercase", color: "#818cf8", margin: "0 0 12px 0" }}>
-              Multiple Perspectives
-            </h2>
+          <div style={{ textAlign: "center", marginBottom: "30px" }}>
             <p style={{ fontSize: "28px", fontWeight: "600", color: "#fff", margin: 0 }}>
-              Choose the view that fits your flow
+              Choose the view that fits you
             </p>
           </div>
 
-          <div className="demo-grid">
-
+          <div
+            className="demo-carousel"
+            onMouseEnter={() => setDemoPaused(true)}
+            onMouseLeave={() => setDemoPaused(false)}
+          >
+            <div className="demo-grid" style={{ transform: `translateX(-${activeDemo * 100}%)` }}>
             <div className="demo-card">
-              <button onClick={() => router.push('/features/views#clock-view')}>Learn more</button>
+              <button className="demo-learn-more" onClick={() => router.push('/features/views#clock-view')}>Learn more</button>
               <h3 className="demo-card-title">Clock</h3>
               <div className="demo-content-body">
                 <div className="hero-right" style={{ display: "flex", justifyContent: "center", position: "relative", width: "100%" }}>
@@ -308,7 +451,7 @@ export default function LandingPage() {
             </div>
 
             <div className="demo-card">
-              <button onClick={() => router.push('/features/views#todo-view')}>Learn more</button>
+              <button className="demo-learn-more" onClick={() => router.push('/features/views#todo-view')}>Learn more</button>
               <h3 className="demo-card-title">Classic todo</h3>
               <div className="demo-content-body" style={{ gap: "12px", justifyContent: "flex-start", overflowY: "auto" }}>
                 {DEMO_TASKS.map((task) => (
@@ -340,7 +483,7 @@ export default function LandingPage() {
             </div>
 
             <div className="demo-card">
-              <button onClick={() => router.push('/features/views#calendar-view')}>Learn more</button>
+              <button className="demo-learn-more" onClick={() => router.push('/features/views#calendar-view')}>Learn more</button>
               <h3 className="demo-card-title">Calendar</h3>
               <div className="demo-content-body" style={{ overflowX: "auto", overflowY: "auto", justifyContent: "flex-start" }}>
                 <div
@@ -358,7 +501,6 @@ export default function LandingPage() {
                     style={{
                       borderRight: "1px solid #1e2638",
                       borderBottom: "1px solid #1e2638",
-                      background: "#111420",
                     }}
                   />
 
@@ -380,15 +522,14 @@ export default function LandingPage() {
                         fontWeight: 600,
                         borderRight: "1px solid #1e2638",
                         borderBottom: "1px solid #1e2638",
-                        background: "#111420",
                         boxSizing: "border-box",
                       }}
                     >
-                      <div style={{ color: item.active ? "#818cf8" : "#a3a3a3" }}>{item.day}</div>
+                      <div style={{ color: item.active ? "#80ef08" : "#a3a3a3" }}>{item.day}</div>
                       <div
                         style={{
                           fontSize: 11,
-                          color: item.active ? "#818cf8" : "#525252",
+                          color: item.active ? "#80ef08" : "#525252",
                           marginTop: 2,
                         }}
                       >
@@ -406,7 +547,6 @@ export default function LandingPage() {
                           textAlign: "right",
                           fontSize: 11,
                           color: "#525252",
-                          background: "#111420",
                           borderRight: "1px solid #1e2638",
                           borderBottom: "1px solid #1e2638",
                           boxSizing: "border-box",
@@ -536,7 +676,7 @@ export default function LandingPage() {
                       {TASK.name}
                     </h1>
 
-                    <div style={{ position: "relative", width: "320px", height: "320px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ position: "relative", width: "min(320px, 100%)", aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <svg style={{ transform: "rotate(-90deg)", width: "100%", height: "100%" }}>
                         <circle
                           cx="160"
@@ -572,29 +712,49 @@ export default function LandingPage() {
                 );
               })()}
             </div>
+          </div>
 
+          <button
+            className="carousel-arrow prev"
+            onClick={() => goToDemo(activeDemo - 1)}
+            aria-label="Previous demo"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          <button
+            className="carousel-arrow next"
+            onClick={() => goToDemo(activeDemo + 1)}
+            aria-label="Next demo"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+
+          <div className="carousel-dots">
+            {Array.from({ length: TOTAL_DEMOS }).map((_, i) => (
+              <button
+                key={i}
+                className={`carousel-dot${i === activeDemo ? " active" : ""}`}
+                onClick={() => goToDemo(i)}
+                aria-label={`Go to demo ${i + 1}`}
+              />
+            ))}
+          </div>
           </div>
         </div>
       </section>
 
       <section data-nosnippet style={{ 
-        padding: "80px 20px", 
-        backgroundColor: "#0B0F1A", 
+        padding: "30px 20px", 
+        backgroundColor: "#0B0F1A",
         width: "100%",
         boxSizing: "border-box"
       }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h2 style={{ 
-            textAlign: "center", 
-            fontSize: "12px", 
-            letterSpacing: "3px", 
-            textTransform: "uppercase", 
-            marginBottom: "12px",
-            color: "#818cf8"
-          }}>
-            Community Feedback
-          </h2>
-
           <p style={{
             textAlign: "center",
             fontSize: "28px",
@@ -635,7 +795,6 @@ export default function LandingPage() {
                 minWidth: "300px",
                 maxWidth: "360px",
                 padding: "28px",
-                backgroundColor: "#111420",
                 borderRadius: "16px",
                 border: "1px solid #1e2638",
                 flexShrink: 0,
@@ -656,7 +815,7 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                <p style={{ color: "#818cf8", fontSize: "13px", fontWeight: "600", margin: 0, fontFamily: "monospace" }}>
+                <p style={{ color: "#80ef08", fontSize: "13px", fontWeight: "600", margin: 0, fontFamily: "monospace" }}>
                   {r.name}
                 </p>
               </div>
@@ -667,8 +826,7 @@ export default function LandingPage() {
 
       <section style={{ padding: "120px 0px", textAlign: "center" }}>
         <div style={{ 
-          backgroundColor: "#111",
-          padding: "80px 40px", 
+          padding: "50px 40px", 
           width: "100%",
           boxSizing: "border-box"
         }}>
@@ -678,13 +836,11 @@ export default function LandingPage() {
               onClick={() => router.push('/dashboard')}
               style={{
                 backgroundColor: "white", color: "black", border: "none",
-                padding: "18px 48px", borderRadius: "6px", fontSize: "16px",
-                fontWeight: "600", cursor: "pointer", transition: "transform 0.2s ease"
+                padding: "9px 15px", borderRadius: "6px", fontSize: "16px",
+                fontWeight: "600", cursor: "pointer"
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              GET ARCADIA FREE
+              Get Arcadia for free
             </button>
           </div>
         </div>

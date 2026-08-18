@@ -18,7 +18,7 @@ const getDateLabel = (d: Date, today: Date): string => {
   if (dk === todayK) return "Today";
   if (dk === dateKey(yesterday)) return "Yesterday";
   if (dk === dateKey(tomorrow)) return "Tomorrow";
-  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" }).toUpperCase();
+  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
 };
 
 const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
@@ -84,7 +84,7 @@ const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ o
 );
 
 const ModalLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <label style={{ display: "block", fontSize: "11px", letterSpacing: "1.5px", color: "#fff", marginBottom: "8px", textTransform: "uppercase" }}>
+  <label style={{ display: "block", fontSize: "13px", color: "#fff", marginBottom: "8px" }}>
     {children}
   </label>
 );
@@ -211,7 +211,7 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                 background: "none", border: "1px solid #fff", color: "#fff",
                 padding: "8px 16px", borderRadius: "6px", cursor: "pointer",
                 fontSize: "12px", fontFamily: "var(--font-geist-sans), sans-serif",
-                letterSpacing: "1px", textTransform: "uppercase",
+                letterSpacing: "1px",
               }}
             >
               + Add Category
@@ -328,7 +328,6 @@ const ManageCategoriesModal: React.FC<ManageCategoriesModalProps> = ({ onClose, 
                 padding: "10px 28px", borderRadius: "6px", cursor: "pointer",
                 fontSize: "13px", fontWeight: "600",
                 fontFamily: "var(--font-geist-sans), sans-serif", letterSpacing: "1px",
-                textTransform: "uppercase",
               }}
             >
               Save
@@ -463,7 +462,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     '09:00');
   const [color, setColor] = useState(initial?.color ?? "#ffffff");
   const [useCustom, setUseCustom] = useState(
-    initial?.color ? !["#ffffff", "#a3a3a3", "#ef4444", "#f97316", "#eab308", "#22c55e", "#38bdf8", "#818cf8", "#e879f9", "#f43f5e"].includes(initial.color) : false
+    initial?.color ? !["#ffffff", "#a3a3a3", "#ef4444", "#f97316", "#eab308", "#22c55e", "#38bdf8", "#80ef08", "#e879f9", "#f43f5e"].includes(initial.color) : false
   );
   const [repeatEnabled, setRepeatEnabled] = useState<boolean>(!!initial?.repeat);
   const [repeatCount, setRepeatCount] = useState<number>(initial?.repeat?.count ?? 1);
@@ -544,7 +543,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               {cat.name}
             </option>
           ))}
-          <option value="NEW_CATEGORY_TRIGGER" style={{ color: "#818cf8", fontWeight: "600" }}>
+          <option value="NEW_CATEGORY_TRIGGER" style={{ color: "#80ef08", fontWeight: "600" }}>
             Manage categories...
           </option>
         </select>
@@ -564,7 +563,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       <div style={{ marginBottom: "28px" }}>
         <ModalLabel>Colour</ModalLabel>
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
-          {["#ffffff", "#a3a3a3", "#ef4444", "#f97316", "#eab308", "#22c55e", "#38bdf8", "#818cf8", "#e879f9", "#f43f5e"].map((c) => (
+          {["#ffffff", "#a3a3a3", "#ef4444", "#f97316", "#eab308", "#22c55e", "#38bdf8", "#80ef08", "#e879f9", "#f43f5e"].map((c) => (
             <button
               key={c}
               onClick={() => { setColor(c); setUseCustom(false); }}
@@ -629,7 +628,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               </svg>
             )}
           </div>
-          <span style={{ fontSize: "11px", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+          <span style={{ fontSize: "13px" }}>
             Repeat
           </span>
         </div>
@@ -714,7 +713,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
                 router.push(`/focus?id=${initial.id}&date=${currentKey}${originParam}`);
               }}
               style={{
-                background: "#818cf8", border: "none",
+                background: "#80ef08", border: "none",
                 color: "white", padding: "10px 22px",
                 borderRadius: "6px", cursor: "pointer",
                 fontSize: "13px", fontWeight: "600",
@@ -948,7 +947,7 @@ export function ToDoPageContent() {
 
   const currentTime = (now.getHours() * 60) + now.getMinutes();
 
-  const dayName = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"][viewedDate.getDay()];
+  const dayName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][viewedDate.getDay()];
   const dateLabel = getDateLabel(viewedDate, today);
 
   useEffect(() => {
@@ -1052,7 +1051,7 @@ export function ToDoPageContent() {
       <div style={{ width: "100%", maxWidth: "980px", margin: "0 auto" }}>
         <div style={{ display: "grid", gap: "24px", marginBottom: "32px", justifyContent: "center" }}>
           <div>
-            <p style={{ fontSize: "11px", letterSpacing: "2.5px", color: "#fff", textTransform: "uppercase", margin: "0 0 10px 0" }}>
+            <p style={{ fontSize: "13px", color: "#fff", margin: "0 0 10px 0" }}>
               {dayName}
             </p>
             <p style={{ fontSize: "40px", fontWeight: "600", margin: "0 0 10px 0", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
@@ -1061,12 +1060,12 @@ export function ToDoPageContent() {
           </div>
 
           <div className="nav-group" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-            <button style={navBtnStyle} onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
+            <button className="button buttonSecondary" onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
             {dayOffset !== 0 && (
-              <button style={navBtnStyle} onClick={() => setDayOffset(0)}>Today</button>
+              <button className="button buttonSecondary" onClick={() => setDayOffset(0)}>Today</button>
             )}
-            <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
-            <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
+            <button className="button buttonSecondary" onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
+            <button className="button buttonSecondary" onClick={() => setShowDateSelect(true)}>Jump To Date</button>
           </div>
         </div>
 
@@ -1074,20 +1073,7 @@ export function ToDoPageContent() {
           <button
             onClick={() => setShowAdd(true)}
             disabled={isSaving}
-            style={{
-              backgroundColor: "white",
-              color: "black",
-              border: "none",
-              padding: "12px 28px",
-              borderRadius: "6px",
-              fontSize: "13px",
-              fontWeight: "600",
-              fontFamily: "var(--font-geist-sans), sans-serif",
-              letterSpacing: "1px",
-              cursor: isSaving ? "wait" : "pointer",
-              textTransform: "uppercase",
-              opacity: isSaving ? 0.6 : 1,
-            }}
+            className="button buttonPrimary"
           >
             {isSaving ? "SAVING..." : "+ Add Task"}
           </button>
@@ -1124,7 +1110,7 @@ export function ToDoPageContent() {
                       {`${String(Math.floor(task.start / 60)).padStart(2, '0')}:${String(task.start % 60).padStart(2, '0')} – ${String(Math.floor(task.end / 60)).padStart(2, '0')}:${String(task.end % 60).padStart(2, '0')}`}
                     </p>
                   </div>
-                  <button style={{...navBtnStyle, marginLeft: "auto"}} onClick={(e) => {e.stopPropagation(); setEditingStatus(task);}}
+                  <button className="buttonSecondary" style={{ marginLeft: "auto"}} onClick={(e) => {e.stopPropagation(); setEditingStatus(task);}}
                   >
                     Change Status
                   </button>

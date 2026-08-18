@@ -9,7 +9,7 @@ export default function FeaturesPage() {
   const features = [
     {
       id: "capture-tasks",
-      badge: "01 / CAPTURE",
+      badge: "",
       title: "Capture tasks",
       description: "Dump your thoughts, brain dumps, and daily responsibilities quickly into one organized queue without friction.",
       imgSrc: "/capture-tasks.png",
@@ -18,7 +18,7 @@ export default function FeaturesPage() {
     },
     {
       id: "see-your-day",
-      badge: "02 / VISUALIZE",
+      badge: "",
       title: "See your day",
       description: "Transform abstract deadlines into clear spatial blocks around your 24-hour clock wheel, calendar, or pomodoro timer.",
       imgSrc: "/visualize-your-day.png",
@@ -27,7 +27,7 @@ export default function FeaturesPage() {
     },
     {
       id: "track-your-progress",
-      badge: "03 / PROGRESS",
+      badge: "",
       title: "Track your progress",
       description: "Monitor real-time session countdowns, active momentum, and monthly insights to stay on top of your goals.",
       imgSrc: "/track-your-progress.png",
@@ -136,17 +136,14 @@ export default function FeaturesPage() {
                 backgroundColor: "white", 
                 color: "black", 
                 border: "none",
-                padding: "18px 44px", 
+                padding: "9px 15px", 
                 borderRadius: "6px", 
                 fontSize: "16px",
                 fontWeight: "600", 
-                cursor: "pointer", 
-                transition: "transform 0.2s ease"
+                cursor: "pointer"
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              GET ARCADIA FREE
+              Try Arcadia for free
             </button>
           </div>
         </div>
@@ -173,7 +170,7 @@ export default function FeaturesPage() {
                 <span style={{ 
                   fontSize: "12px", 
                   letterSpacing: "3px", 
-                  color: "#818cf8", 
+                  color: "#80ef08", 
                   fontWeight: "600",
                   display: "block",
                   marginBottom: "12px"
@@ -204,13 +201,10 @@ export default function FeaturesPage() {
                 {item.link && item.link.length > 0 && (
                   <button style={{
                     backgroundColor: "white", color: "black", border: "none",
-                    padding: "18px 48px", borderRadius: "6px", fontSize: "16px",
-                    fontWeight: "600", cursor: "pointer", transition: "transform 0.2s ease",
-                    marginTop: "12px"
+                    padding: "9px 15px", borderRadius: "6px", fontSize: "16px",
+                    fontWeight: "600", cursor: "pointer", marginTop: "12px"
                   }}
                   onClick={() => router.push(item.link[1])}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   >
                     {item.link[0]}
                   </button>
@@ -241,9 +235,6 @@ export default function FeaturesPage() {
           <h2 style={{ fontSize: "40px", fontWeight: "600", marginBottom: "20px" }}>
             Get started today
           </h2>
-          <p style={{ fontSize: "18px", marginBottom: "40px", color: "#a3a3a3" }}>
-            Experience your tasks visually and master your daily schedule.
-          </p>
           <div data-nosnippet>
             <button 
               onClick={() => router.push('/dashboard')}
@@ -251,17 +242,14 @@ export default function FeaturesPage() {
                 backgroundColor: "white", 
                 color: "black", 
                 border: "none",
-                padding: "18px 48px", 
+                padding: "9px 15px", 
                 borderRadius: "6px", 
                 fontSize: "16px",
                 fontWeight: "600", 
-                cursor: "pointer", 
-                transition: "transform 0.2s ease"
+                cursor: "pointer",
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              GET ARCADIA FREE
+              Try Arcadia for free
             </button>
           </div>
         </div>

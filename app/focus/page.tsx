@@ -178,12 +178,11 @@ export function FocusPageContent() {
       backgroundColor: "#0B0F1A", color: "white", minHeight: '100vh', width: '100%'
     }}>
       <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <p style={{ fontSize: '12px', letterSpacing: '4px', color: task.color, marginBottom: '16px', textTransform: 'uppercase' }}>
-          CURRENT SESSION
+        <p style={{ fontSize: '13px', color: task.color, marginBottom: '16px' }}>
+          Current session
         </p>
         <h1 style={{
-          fontSize: "48px", fontFamily: "var(--font-geist-sans), sans-serif",
-          letterSpacing: "2.5px", textTransform: "uppercase", margin: "0 0 40px 0"
+          fontSize: "48px", fontFamily: "var(--font-geist-sans), sans-serif", margin: "0 0 40px 0"
         }}>
           {task.name}
         </h1>

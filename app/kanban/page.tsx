@@ -182,32 +182,19 @@ export function CalendarPageContent() {
       `}</style>
 
       <div className="nav-group" style={{ display: "flex", gap: "8px", alignItems: "center", justifyContent: "center", flexWrap: "wrap", marginTop: "10px" }}>
-        <button style={navBtnStyle} onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
+        <button className="button buttonSecondary" onClick={() => setDayOffset((o) => o - 1)}>← Prev</button>
         {dayOffset !== 0 && (
-          <button style={navBtnStyle} onClick={() => setDayOffset(0)}>Today</button>
+          <button className="button buttonSecondary" onClick={() => setDayOffset(0)}>Today</button>
         )}
-        <button style={navBtnStyle} onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
-        <button style={navBtnStyle} onClick={() => setShowDateSelect(true)}>Jump To Date</button>
+        <button className="button buttonSecondary" onClick={() => setDayOffset((o) => o + 1)}>Next →</button>
+        <button className="button buttonSecondary" onClick={() => setShowDateSelect(true)}>Jump To Date</button>
       </div>
 
       <div className="add-col">
         <button
           onClick={() => setShowAdd(true)}
           disabled={isSaving}
-          style={{
-            backgroundColor: "white",
-            color: "black",
-            border: "none",
-            padding: "12px 28px",
-            borderRadius: "6px",
-            fontSize: "13px",
-            fontWeight: "600",
-            fontFamily: "var(--font-geist-sans), sans-serif",
-            letterSpacing: "1px",
-            cursor: isSaving ? "wait" : "pointer",
-            textTransform: "uppercase",
-            opacity: isSaving ? 0.6 : 1,
-          }}
+          className="button buttonPrimary"
         >
           {isSaving ? "SAVING..." : "+ Add Task"}
         </button>

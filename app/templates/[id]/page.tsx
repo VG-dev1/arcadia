@@ -59,7 +59,7 @@ export default function SharedTemplatePage() {
       <div style={{ minHeight: '100vh', backgroundColor: '#0B0F1A', color: 'white', padding: '40px 24px' }}>
         <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
           <p>That template could not be found.</p>
-          <Link href="/templates" style={{ color: '#818cf8' }}>Browse all templates</Link>
+          <Link href="/templates" style={{ color: '#80ef08' }}>Browse all templates</Link>
         </div>
       </div>
     );
@@ -85,7 +85,7 @@ export default function SharedTemplatePage() {
       `}</style>
       <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
         <div style={{ marginBottom: '24px' }}>
-          <p style={{ fontSize: '11px', letterSpacing: '2.5px', textTransform: 'uppercase', margin: '0 0 8px 0', color: '#fff' }}>
+          <p style={{ fontSize: '13px', margin: '0 0 8px 0', color: '#fff' }}>
             Shared template
           </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
@@ -94,10 +94,10 @@ export default function SharedTemplatePage() {
               <p style={{ margin: '8px 0 0 0', color: '#9ca3af' }}>by {template.authorName || 'Anonymous'}</p>
             </div>
             <div style={{ display: "flex", gap: "12px" }}>
-              <Link href="/dashboard" style={navBtnStyle} onClick={() => localStorage.setItem("template", JSON.stringify(template))}>
+              <Link href="/dashboard" className="button buttonSecondary" onClick={() => localStorage.setItem("template", JSON.stringify(template))}>
                 Use Template
               </Link>
-              <Link href="/templates" style={navBtnStyle}>
+              <Link href="/templates" className="button buttonSecondary">
                 ← Back to templates
               </Link>
             </div>

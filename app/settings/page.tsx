@@ -17,11 +17,9 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
   <div style={{ marginBottom: "28px" }}>
     <label style={{
       display: "block",
-      fontSize: "11px",
-      letterSpacing: "1.5px",
+      fontSize: "13px",
       color: "#fff",
       marginBottom: "8px",
-      textTransform: "uppercase",
     }}>
       {label}
     </label>
@@ -217,7 +215,7 @@ export default function SettingsPage() {
         alignItems: "center",
         padding: "24px 48px",
       }}>
-        <button style={navBtnStyle} onClick={() => router.push('/dashboard')}>
+        <button className="button buttonSecondary" onClick={() => router.push('/dashboard')}>
           ← Dashboard
         </button>
       </div>
@@ -230,10 +228,6 @@ export default function SettingsPage() {
         padding: "72px 48px",
       }}>
         <div style={{ width: "100%", maxWidth: "480px" }}>
-
-          <p style={{ fontSize: "11px", letterSpacing: "2.5px", color: "#fff", textTransform: "uppercase", margin: "0 0 12px 0" }}>
-            Account
-          </p>
           <h1 style={{ fontSize: "40px", fontWeight: "600", margin: "0 0 48px 0", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
             Settings
           </h1>
@@ -341,7 +335,7 @@ export default function SettingsPage() {
           <div style={{ marginBottom: "20px" }}>
             <label style={{
               display: "block", fontSize: "11px", letterSpacing: "1.5px",
-              color: "#fff", marginBottom: "8px", textTransform: "uppercase",
+              color: "#fff", marginBottom: "8px",
             }}>
               Confirm your password
             </label>

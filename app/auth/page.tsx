@@ -132,7 +132,7 @@ export default function AuthPage() {
     }}>
       {isForgotPassword ? (
         <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '300px' }}>
-          <h1 style={{ letterSpacing: '4px', textAlign: 'center', margin: '0 0 20px 0', fontSize: '20px' }}>RESET PASSWORD</h1>
+          <h1 style={{ textAlign: 'center', margin: '0 0 20px 0', fontSize: '20px' }}>RESET PASSWORD</h1>
 
           {error && (
             <div style={{
@@ -166,8 +166,7 @@ export default function AuthPage() {
               fontWeight: 'bold', cursor: loading ? 'wait' : 'pointer',
               borderRadius: '6px', border: 'none',
               fontFamily: 'var(--font-geist-sans), sans-serif',
-              fontSize: '13px', letterSpacing: '1px',
-              opacity: loading ? 0.6 : 1, textTransform: 'uppercase'
+              fontSize: '13px', opacity: loading ? 0.6 : 1
             }}
           >
             {loading ? 'SENDING...' : 'SEND RESET LINK'}
@@ -180,12 +179,12 @@ export default function AuthPage() {
               opacity: 0.6, margin: 0, userSelect: 'none'
             }}
           >
-            BACK TO LOGIN
+            Back to Login
           </p>
         </form>
       ) : (
       <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '300px' }}>
-        <h1 style={{ letterSpacing: '4px', textAlign: 'center', margin: '0 0 20px 0' }}>LOG IN TO ARCADIA</h1>
+        <h1 style={{ fontSize: "13 px", textAlign: 'center', margin: '0 0 20px 0' }}>Log in to Arcadia</h1>
         
         {error && (
           <div style={{
@@ -270,16 +269,14 @@ export default function AuthPage() {
             border: 'none',
             fontFamily: 'var(--font-geist-sans), sans-serif',
             fontSize: '13px',
-            letterSpacing: '1px',
             opacity: loading ? 0.6 : 1,
-            textTransform: 'uppercase'
           }}
         >
-          {loading ? 'LOADING...' : (isLogin ? 'LOGIN' : 'REGISTER')}
+          {loading ? 'LOADING...' : (isLogin ? 'Login' : 'Register')}
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ flex: 1, height: '1px', backgroundColor: '#2a2a2a' }} />
-          <span style={{ fontSize: '11px', letterSpacing: '1.5px', color: '#fff' }}>OR</span>
+          <span style={{ fontSize: '11px', color: '#fff' }}>OR</span>
           <div style={{ flex: 1, height: '1px', backgroundColor: '#2a2a2a' }} />
         </div>
 
@@ -296,13 +293,11 @@ export default function AuthPage() {
             cursor: loading ? 'wait' : 'pointer',
             fontFamily: 'var(--font-geist-sans), sans-serif',
             fontSize: '13px',
-            letterSpacing: '1px',
             opacity: loading ? 0.6 : 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
-            textTransform: 'uppercase',
           }}
         >
           <svg width="16" height="16" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -326,7 +321,7 @@ export default function AuthPage() {
             userSelect: 'none'
           }}
         >
-          {isLogin ? "DON'T HAVE AN ACCOUNT? REGISTER" : "HAVE AN ACCOUNT? LOGIN"}
+          {isLogin ? "Don't have an account? Register" : "Have an account? Log in"}
         </p>
 
         <p
@@ -336,7 +331,7 @@ export default function AuthPage() {
             opacity: 0.6, margin: 0, userSelect: 'none'
           }}
         >
-          FORGOT YOUR PASSWORD? RESET IT
+          Forgot your password? Reset it
         </p>
       </form>
       )}

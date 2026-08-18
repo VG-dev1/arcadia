@@ -312,13 +312,13 @@ export function InsightsPageContent() {
             <div style={{ display: "flex", gap: "6px" }}>
               <button
                 onClick={() => handleNavigateMonth('prev')}
-                style={navBtnStyle}
+                className="button buttonSecondary"
               >
                 Prev
               </button>
               <button
                 onClick={() => handleNavigateMonth('next')}
-                style={navBtnStyle}
+                className="button buttonSecondary"
               >
                 Next
               </button>

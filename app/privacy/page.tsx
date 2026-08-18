@@ -45,7 +45,7 @@ export default function PrivacyPolicyPage() {
           <h1 style={{ fontSize: "clamp(32px, 4vw, 48px)", fontWeight: "600", letterSpacing: "-1px", margin: "0 0 12px 0" }}>
             Privacy Policy
           </h1>
-          <p style={{ color: "#818cf8", fontSize: "14px", fontWeight: "500", margin: 0, letterSpacing: "0.5px" }}>
+          <p style={{ color: "#80ef08", fontSize: "14px", fontWeight: "500", margin: 0, letterSpacing: "0.5px" }}>
             Last Updated: June 15, 2026
           </p>
         </header>
@@ -124,7 +124,7 @@ export default function PrivacyPolicyPage() {
               If you have any questions about this Privacy Policy or wish to request data deletion, please contact us at:{" "}
               <a 
                 href="mailto:vitohackergrgic@gmail.com" 
-                style={{ color: "#818cf8", textDecoration: "none", borderBottom: "1px dashed #818cf8" }}
+                style={{ color: "#80ef08", textDecoration: "none", borderBottom: "1px dashed #80ef08" }}
               >
                 vitohackergrgic@gmail.com
               </a>

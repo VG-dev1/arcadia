@@ -32,12 +32,7 @@ export const UserProfile: React.FC = () => {
     }
   };
 
-  if (loading || !userProfile) {
-    return null;
-  }
-
-  const displayName = userProfile.username || userProfile.email || 'User';
-
+  const displayName = userProfile?.username || userProfile?.email || 'User';
   const initials = displayName
     .split(' ')
     .map(word => word[0])
@@ -45,44 +40,67 @@ export const UserProfile: React.FC = () => {
     .toUpperCase()
     .slice(0, 2);
 
+  console.log('Auth debug:', {
+    displayName,
+    userProfile,
+    initials,
+  });
+
   return (
     <div style={{ position: 'relative' }} ref={dropdownRef}>
-      <button
-        onClick={() => setShowDropdown(!showDropdown)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          background: 'none',
-          border: 'none',
-          color: 'white',
-          cursor: 'pointer',
-          padding: '10',
-          fontFamily: 'var(--font-geist-sans), sans-serif',
-        }}
-      >
-        <div
+      {displayName != "User" ? (
+        <button
+          onClick={() => setShowDropdown(!showDropdown)}
           style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: '#fff',
-            color: '#000',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 'bold',
-            fontSize: '12px',
-            flexShrink: 0,
+            gap: '12px',
+            background: 'none',
+            border: 'none',
+            color: 'white',
+            cursor: 'pointer',
+            padding: '10',
+            fontFamily: 'var(--font-geist-sans), sans-serif',
           }}
         >
-          {initials}
-        </div>
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              backgroundColor: '#fff',
+              color: '#000',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 'bold',
+              fontSize: '12px',
+              flexShrink: 0,
+            }}
+          >
+            {initials}
+          </div>
 
-        <span style={{ fontSize: '13px', letterSpacing: '0.5px' }}>
-          {userProfile.username}
-        </span>
-      </button>
+          <span style={{ fontSize: '13px', letterSpacing: '0.5px' }}>
+            {userProfile?.username}
+          </span>
+        </button>
+      ) : (
+        <button 
+          onClick={() => router.push("/auth")}
+          style={{
+          backgroundColor: "white", 
+          color: "black", 
+          border: "none",
+          padding: "9px 15px", 
+          borderRadius: "6px", 
+          fontSize: "16px",
+          fontWeight: "600", 
+          cursor: "pointer"
+        }}>
+          Sign in
+        </button>
+      )}
 
       {showDropdown && (
         <div
@@ -112,7 +130,6 @@ export const UserProfile: React.FC = () => {
               cursor: 'pointer',
               fontFamily: 'var(--font-geist-sans), sans-serif',
               fontSize: '13px',
-              letterSpacing: '0.5px',
               transition: 'background-color 0.2s',
             }}
             onMouseEnter={(e) => {
@@ -122,7 +139,7 @@ export const UserProfile: React.FC = () => {
               (e.target as HTMLElement).style.backgroundColor = 'transparent';
             }}
           >
-            SETTINGS
+            Settings
           </button>
           <button
             onClick={handleLogout}
@@ -136,7 +153,6 @@ export const UserProfile: React.FC = () => {
               cursor: 'pointer',
               fontFamily: 'var(--font-geist-sans), sans-serif',
               fontSize: '13px',
-              letterSpacing: '0.5px',
               transition: 'background-color 0.2s',
             }}
             onMouseEnter={(e) => {
@@ -146,7 +162,7 @@ export const UserProfile: React.FC = () => {
               (e.target as HTMLElement).style.backgroundColor = 'transparent';
             }}
           >
-            LOGOUT
+            Logout
           </button>
         </div>
       )}

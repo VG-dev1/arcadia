@@ -82,8 +82,6 @@ export function Footer() {
           font-size: 14px;
           font-weight: 600;
           margin: 0;
-          text-transform: uppercase;
-          letter-spacing: 1px;
         }
 
         .footer-link-btn {
@@ -99,7 +97,7 @@ export function Footer() {
         }
 
         .footer-link-btn:hover {
-          color: #818cf8;
+          color: #80ef08;
         }
 
         .footer-bottom {
@@ -134,15 +132,15 @@ export function Footer() {
         <div className="footer-container">
 
           <div className="footer-top">
-
             <div className="footer-brand">
               <div className="footer-logo-row">
                 <img src="/icon.png" alt="Arcadia Icon" className="footer-logo-img" />
                 <h4 className="footer-brand-name">Arcadia</h4>
               </div>
               <p className="footer-slogan">
-                Stop losing track of hours. See your day on a 24-hour circle.
+                One day. Many ways to see it.
               </p>
+              <a className="footer-link-btn" href="https://threads.com/@vito.hacker">Follow us on Threads</a>
             </div>
 
             <div className="footer-links-column">
