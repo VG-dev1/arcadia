@@ -36,6 +36,8 @@ export default function AuthPage() {
 
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
+
+        router.push('/dashboard');
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const userId = userCredential.user.uid;
@@ -46,9 +48,9 @@ export default function AuthPage() {
           tasks: {},
           createdAt: new Date(),
         });
+
+        router.push('/onboarding/1');
       }
-      
-      router.push('/dashboard');
     } catch (err: any) {
       let errorMessage = err.message;
 

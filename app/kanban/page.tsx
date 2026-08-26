@@ -35,7 +35,7 @@ const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
   return false;
 };
 
-export function CalendarPageContent() {
+export function KanbanPageContent() {
   const { allTasks, addTask, updateTask, updateTaskStatus, deleteTask } = useAuth();
   const [dayOffset, setDayOffset] = useState(0);
   const [showDateSelect, setShowDateSelect] = useState(false);
@@ -318,10 +318,10 @@ export function CalendarPageContent() {
   );
 }
 
-export default function CalendarPage() {
+export default function KanbanPage() {
   return (
     <ProtectedRoute>
-      <CalendarPageContent />
+      <KanbanPageContent />
     </ProtectedRoute>
   );
 }
