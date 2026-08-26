@@ -436,6 +436,7 @@ const ClockAppContent: React.FC = () => {
 
   const isToday = dayOffset === 0;
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const todayDate = new Date().toLocaleDateString('en-CA');
   const handAngle = (currentMinutes / 1440) * 360;
 
   const handleClockClick = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -472,7 +473,7 @@ const ClockAppContent: React.FC = () => {
 
 
   const currentTime = (now.getHours() * 60) + now.getMinutes();
-  const currentTask = tasks.find((task) => {return task.start <= currentTime && currentTime <= currentTime});
+  const currentTask = tasks.find((task) => {return task.start <= currentTime && currentTime <= task.end && task.repeatOrigin == todayDate});
 
   return (
     <div style={{
