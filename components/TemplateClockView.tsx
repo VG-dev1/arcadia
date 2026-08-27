@@ -90,8 +90,8 @@ function TemplateClockViewContent({ tasks, now = new Date(), size }: TemplateClo
   }, [tasks, center, radius, circumference, arcWidth, getRotation]);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <svg width={clockSize} height={clockSize} viewBox={`0 0 ${clockSize} ${clockSize}`}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', overflow: 'hidden' }}>
+      <svg width={clockSize} height={clockSize} viewBox={`0 0 ${clockSize} ${clockSize}`} style={{ maxWidth: '100%', height: 'auto' }}>
         {tickMarks}
         {labels}
         {taskArcs}  

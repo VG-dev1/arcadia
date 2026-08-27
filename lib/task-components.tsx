@@ -43,7 +43,7 @@ export const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }>
         border: "1px solid #fff",
         borderRadius: "12px",
         padding: "36px",
-        minWidth: "380px",
+        minWidth: "min(380px, 90vw)",
         maxWidth: "90vw",
         color: "white",
         fontFamily: "var(--font-geist-sans), sans-serif",

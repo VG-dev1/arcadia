@@ -711,7 +711,7 @@ const ClockAppContent: React.FC = () => {
               <a href={shareLink} style={{ display: "block", color: "#80ef08", wordBreak: "break-all", marginBottom: "24px" }}>
                 {shareLink}
               </a>
-              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexWrap: "wrap" }}>
                 {showDeleteTemplateButton && (
                   <button
                     onClick={async () => {
@@ -771,7 +771,7 @@ const ClockAppContent: React.FC = () => {
                 />
                 {shareError && <p style={{ color: "#ef4444", fontSize: "12px", margin: "8px 0 0 0" }}>{shareError}</p>}
               </div>
-              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexWrap: "wrap" }}>
                 <button
                   onClick={() => { setShowShareModal(false); setShareError(''); setShareLink(''); setShareTemplateName(''); }}
                   style={{ background: "none", border: "1px solid #fff", color: "#fff", padding: "10px 18px", borderRadius: "6px", cursor: "pointer" }}
