@@ -26,6 +26,207 @@ export const timeToMinutes = (time: string): number => {
 export const dateKey = (d: Date): string =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
+export const getDateLabel = (d: Date, today: Date): string => {
+  const dk = dateKey(d);
+  const todayK = dateKey(today);
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  if (dk === todayK) return "Today";
+  if (dk === dateKey(yesterday)) return "Yesterday";
+  if (dk === dateKey(tomorrow)) return "Tomorrow";
+  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+};
+
+export const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
+  if (!task.repeat || !task.repeatOrigin) return false;
+  const origin = new Date(task.repeatOrigin + 'T00:00:00');
+  const target = new Date(targetKey + 'T00:00:00');
+  if (target < origin) return false;
+  const { count, unit } = task.repeat;
+  if (unit === 'days') {
+    const diff = Math.round((target.getTime() - origin.getTime()) / 86400000);
+    return diff % count === 0;
+  }
+  if (unit === 'weeks') {
+    const diff = Math.round((target.getTime() - origin.getTime()) / 86400000);
+    return diff % (count * 7) === 0;
+  }
+  if (unit === 'months') {
+    const yearDiff = target.getFullYear() - origin.getFullYear();
+    const monthDiff = yearDiff * 12 + (target.getMonth() - origin.getMonth());
+    return monthDiff % count === 0 && target.getDate() === origin.getDate();
+  }
+  if (unit === 'years') {
+    const yearDiff = target.getFullYear() - origin.getFullYear();
+    return yearDiff % count === 0 &&
+      target.getMonth() === origin.getMonth() &&
+      target.getDate() === origin.getDate();
+  }
+  if (unit === 'weekdays') {
+    return target.getDay() % 6 !== 0;
+  }
+  return false;
+};
+
+/** All tasks visible on a date: the day's own tasks plus recurring tasks from other days. */
+export const getTasksForDate = (allTasks: Record<string, Task[]>, date: Date): Task[] => {
+  const currentKey = dateKey(date);
+  const ownTasks = allTasks[currentKey] ?? [];
+  const repeatingTasks = Object.entries(allTasks)
+    .filter(([key]) => key !== currentKey)
+    .flatMap(([, dayTasks]) =>
+      dayTasks.filter((task) => task.repeat && doesTaskRepeatOnDate(task, currentKey))
+    );
+  const ownIds = new Set(ownTasks.map((task) => task.id));
+  return [...ownTasks, ...repeatingTasks.filter((task) => !ownIds.has(task.id))].sort((a, b) => a.start - b.start);
+};
+
+interface DateSelectorProps {
+  onClose: () => void;
+  onSelectDate: (date: Date) => void;
+}
+
+export const DateSelector: React.FC<DateSelectorProps> = ({ onClose, onSelectDate }) => {
+  const [dateInput, setDateInput] = useState(new Date().toISOString().split('T')[0]);
+
+  const handleConfirm = () => {
+    if (!dateInput) return;
+    const [year, month, day] = dateInput.split('-').map(Number);
+    onSelectDate(new Date(year, month - 1, day));
+    onClose();
+  };
+
+  return (
+    <Modal onClose={onClose}>
+      <h2 style={{ margin: "0 0 28px 0", fontSize: "18px", fontWeight: "600", letterSpacing: "0.5px" }}>
+        Jump to Date
+      </h2>
+      <div style={{ marginBottom: "24px" }}>
+        <ModalLabel>Select date</ModalLabel>
+        <ModalInput
+          type="date"
+          value={dateInput}
+          onChange={(e) => setDateInput(e.target.value)}
+          autoFocus
+        />
+      </div>
+      <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+        <button
+          onClick={onClose}
+          style={{
+            background: "none",
+            border: "1px solid #fff",
+            color: "#fff",
+            padding: "10px 18px",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "13px",
+            fontFamily: "var(--font-geist-sans), sans-serif",
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleConfirm}
+          disabled={!dateInput}
+          style={{
+            background: "white",
+            border: "none",
+            color: "black",
+            padding: "10px 22px",
+            borderRadius: "6px",
+            cursor: dateInput ? "pointer" : "not-allowed",
+            fontSize: "13px",
+            fontWeight: "600",
+            fontFamily: "var(--font-geist-sans), sans-serif",
+            letterSpacing: "0.5px",
+            opacity: dateInput ? 1 : 0.5,
+          }}
+        >
+          Confirm
+        </button>
+      </div>
+    </Modal>
+  );
+};
+
+interface TaskStatusMenuProps {
+  taskEnd: number;
+  taskCurrentStatus: string;
+  currentTime: number;
+  onSelect: (status: TaskStatus, overTime: number) => void;
+  onClose: () => void;
+  position?: { top: number; left: number };
+}
+
+export const TaskStatusMenu: React.FC<TaskStatusMenuProps> = ({ taskEnd, taskCurrentStatus, currentTime, onSelect, onClose, position }) => {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const closeWhenOutside = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) onClose();
+    };
+    const closeOnContextMenuOutside = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) onClose();
+    };
+
+    document.addEventListener('mousedown', closeWhenOutside);
+    document.addEventListener('contextmenu', closeOnContextMenuOutside);
+    return () => {
+      document.removeEventListener('mousedown', closeWhenOutside);
+      document.removeEventListener('contextmenu', closeOnContextMenuOutside);
+    };
+  }, [onClose]);
+
+  const choose = (status: TaskStatus) => {
+    const isLate = status === 'completed' && currentTime > taskEnd;
+    onSelect(isLate ? 'completed-late' : status, isLate ? currentTime - taskEnd : 0);
+    onClose();
+  };
+
+  return (
+    <div
+      ref={menuRef}
+      onClick={(event) => event.stopPropagation()}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      style={{
+        position: 'fixed',
+        top: position?.top ?? '50%',
+        left: position?.left ?? '50%',
+        transform: position ? undefined : 'translate(-50%, -50%)',
+        backgroundColor: '#111',
+        border: '1px solid #fff',
+        borderRadius: '6px',
+        overflow: 'hidden',
+        minWidth: '160px',
+        zIndex: 1000,
+      }}
+    >
+      {([
+        ['to-do', 'Not completed yet'],
+        ['in-progress', 'In progress'],
+        ['completed', 'Completed!'],
+      ] as const).map(([status, label]) => (
+        <button
+          key={status}
+          onClick={() => choose(status)}
+          style={{
+            display: 'block', width: '100%', padding: '12px 16px',
+            background: 'none', border: 'none', borderBottom: '1px solid #1a1a1a',
+            color: '#fff', textAlign: 'left', cursor: 'pointer',
+            fontFamily: 'var(--font-geist-sans), sans-serif', fontSize: '13px',
+          }}
+        >
+          {label}{taskCurrentStatus.includes(status) ? ' (current)' : ''}
+        </button>
+      ))}
+    </div>
+  );
+};
+
 export const Modal: React.FC<{ onClose: () => void; children: React.ReactNode }> = ({ onClose, children }) => (
   <div
     onClick={onClose}

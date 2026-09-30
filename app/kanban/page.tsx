@@ -3,37 +3,12 @@
 import React, { useState } from 'react';
 import { useAuth, type Task, type TaskStatus } from '@/lib/AuthContext';
 import { ProtectedRoute } from '@/lib/ProtectedRoute';
-import { DateSelector, TaskForm } from '@/app/todo/page';
-
-const dateKey = (d: Date): string =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-
-const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => {
-  if (!task.repeat || !task.repeatOrigin) return false;
-  const origin = new Date(task.repeatOrigin + 'T00:00:00');
-  const target = new Date(targetKey + 'T00:00:00');
-  if (target < origin) return false;
-  const { count, unit } = task.repeat;
-  if (unit === 'days') {
-    const diff = Math.round((target.getTime() - origin.getTime()) / 86400000);
-    return diff % count === 0;
-  }
-  if (unit === 'weeks') {
-    const diff = Math.round((target.getTime() - origin.getTime()) / 86400000);
-    return diff % (count * 7) === 0;
-  }
-  if (unit === 'months') {
-    const yearDiff = target.getFullYear() - origin.getFullYear();
-    const monthDiff = yearDiff * 12 + (target.getMonth() - origin.getMonth());
-    return monthDiff % count === 0 && target.getDate() === origin.getDate();
-  }
-  if (unit === 'years') {
-    const yearDiff = target.getFullYear() - origin.getFullYear();
-    return yearDiff % count === 0 && target.getMonth() === origin.getMonth() && target.getDate() === origin.getDate();
-  }
-  if (unit === 'weekdays') return target.getDay() % 6 !== 0;
-  return false;
-};
+import {
+  DateSelector,
+  TaskForm,
+  dateKey,
+  getTasksForDate,
+} from '@/lib/task-components';
 
 export function KanbanPageContent() {
   const { allTasks, addTask, updateTask, updateTaskStatus, deleteTask } = useAuth();
@@ -59,15 +34,7 @@ export function KanbanPageContent() {
     return date;
   });
 
-  const tasksForDate = (date: Date): Task[] => {
-    const currentKey = dateKey(date);
-    const ownTasks = allTasks[currentKey] ?? [];
-    const repeatingTasks = Object.entries(allTasks)
-      .filter(([key]) => key !== currentKey)
-      .flatMap(([, dayTasks]) => dayTasks.filter((task) => task.repeat && doesTaskRepeatOnDate(task, currentKey)));
-    const ownIds = new Set(ownTasks.map((task) => task.id));
-    return [...ownTasks, ...repeatingTasks.filter((task) => !ownIds.has(task.id))].sort((a, b) => a.start - b.start);
-  };
+  const tasksForDate = (date: Date): Task[] => getTasksForDate(allTasks, date);
 
   const handleAddTask = async (task: Omit<Task, "id">) => {
     const currentKey = dateKey(viewedDate);
