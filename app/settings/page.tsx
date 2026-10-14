@@ -91,8 +91,8 @@ export default function SettingsPage() {
   const [deleteError, setDeleteError] = useState('');
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedViews, setSelectedViews] = useState(["Clock", "Todo", "Insights", "Calendar", "Kanban"]);
-  const views = ["Clock", "Todo", "Insights", "Calendar", "Kanban"];
+  const [selectedViews, setSelectedViews] = useState(["Clock", "Todo", "Insights", "Calendar", "Kanban", "Sheets"]);
+  const views = ["Clock", "Todo", "Insights", "Calendar", "Kanban", "Sheets"];
   const toggleView = (view : string) => {
     setSelectedViews((current) =>
       current.includes(view)
@@ -105,7 +105,7 @@ export default function SettingsPage() {
     if (userProfile) {
       setUsername(userProfile.username || '');
       setEmail(userProfile.email || '');
-      setSelectedViews(userProfile.pinnedViews || ["Clock", "Todo", "Insights", "Calendar", "Kanban"]);
+      setSelectedViews(userProfile.pinnedViews || ["Clock", "Todo", "Insights", "Calendar", "Kanban", "Sheets"]);
     }
   }, [userProfile]);
 

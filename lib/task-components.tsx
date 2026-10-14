@@ -68,7 +68,6 @@ export const doesTaskRepeatOnDate = (task: Task, targetKey: string): boolean => 
   return false;
 };
 
-/** All tasks visible on a date: the day's own tasks plus recurring tasks from other days. */
 export const getTasksForDate = (allTasks: Record<string, Task[]>, date: Date): Task[] => {
   const currentKey = dateKey(date);
   const ownTasks = allTasks[currentKey] ?? [];

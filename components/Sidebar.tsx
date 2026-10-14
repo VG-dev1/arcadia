@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAuth } from '@/lib/AuthContext';
 
-const SIDEBAR_ROUTES = ["/dashboard", "/insights", "/todo", "/calendar", "/kanban"];
+const SIDEBAR_ROUTES = ["/dashboard", "/insights", "/todo", "/calendar", "/kanban", "/sheets"];
 
 const NAV_ITEMS = [
   {
@@ -221,6 +221,64 @@ const NAV_ITEMS = [
         />
       </svg>
     ),
+  },
+  {
+    label: "Spreadsheets",
+    id: "Sheets",
+    path: "/sheets",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect
+          x="2.5"
+          y="2.5"
+          width="13"
+          height="13"
+          rx="1.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="2.5"
+          y1="6"
+          x2="15.5"
+          y2="6"
+          stroke="currentColor"
+          strokeWidth="1.2"
+        />
+        <line
+          x1="2.5"
+          y1="10"
+          x2="15.5"
+          y2="10"
+          stroke="currentColor"
+          strokeWidth="1.2"
+        />
+        <line
+          x1="2.5"
+          y1="13"
+          x2="15.5"
+          y2="13"
+          stroke="currentColor"
+          strokeWidth="1.2"
+        />
+        <line
+          x1="7"
+          y1="2.5"
+          x2="7"
+          y2="15.5"
+          stroke="currentColor"
+          strokeWidth="1.2"
+        />
+        <line
+          x1="11"
+          y1="2.5"
+          x2="11"
+          y2="15.5"
+          stroke="currentColor"
+          strokeWidth="1.2"
+        />
+      </svg>
+    )
   }
 ];
 
